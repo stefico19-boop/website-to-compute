@@ -2,622 +2,506 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ארגון וסדר – הבית של סטפני</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ארגון וסדר ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body{font-family:'Heebo',sans-serif}
-    .glass{backdrop-filter:blur(10px);background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.7))}
-    .card{border-radius:18px;box-shadow:0 10px 30px rgba(31,41,55,.08)}
-    .btn{transition:.15s}
-    .btn:active{transform:translateY(1px)}
-    .chip{background:rgba(124,58,237,.08);color:#6d28d9}
-    .ring-progress{transform:rotate(-90deg)}
-    .toast{position:fixed;bottom:18px;right:18px;z-index:9999}
+    :root{
+      --bg1:#fff3ff; --bg2:#f8f4ff; --brand:#7c3aed; --brand2:#a855f7; --ink:#1f2937;
+    }
+    html,body{height:100%}
+    body{font-family:Heebo,system-ui;background:radial-gradient(1200px 600px at 80% -10%, #ffe8ff 0%, transparent 60%),
+                         radial-gradient(1000px 600px at -10% 0%, #efe9ff 0%, transparent 60%),
+                         linear-gradient(180deg,var(--bg2),#ffffff)}
+    .glass{backdrop-filter: blur(10px); background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.7)); box-shadow:0 10px 30px rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.12)}
+    .chip{display:inline-flex;align-items:center;gap:.4rem;border-radius:999px;padding:.2rem .6rem;font-size:.8rem}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:.55rem .8rem;font-weight:600}
+    .btn-ghost{background:rgba(124,58,237,.08); color:var(--brand)}
+    .btn-solid{background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;box-shadow:0 10px 25px rgba(124,58,237,.25)}
+    .btn-pill{border-radius:999px}
+    .tab{padding:.55rem 1rem;border-radius:12px}
+    .grid-cards{display:grid;grid-template-columns:repeat(2, minmax(0,1fr)); gap:.75rem}
+    @media (min-width:640px){.grid-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    .card{border-radius:18px}
+    .progress{height:10px;border-radius:999px;background:#f1e8ff;overflow:hidden}
+    .progress>span{display:block;height:100%;background:linear-gradient(90deg,#8b5cf6,#a855f7)}
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:.7rem 1rem;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:.25s}
+    .toast.show{opacity:1;pointer-events:auto}
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-rose-50">
-
-  <!-- Header -->
-  <header class="sticky top-0 z-10 bg-white/70 backdrop-blur border-b border-purple-100">
+<body class="min-h-screen text-[15px] text-gray-800">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-30 bg-white/70 backdrop-blur border-b border-purple-100">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <h1 class="text-xl sm:text-2xl font-extrabold text-purple-700">✨ ארגון וסדר</h1>
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">✨</span>
+        <h1 class="font-extrabold text-xl sm:text-2xl text-purple-700">ארגון וסדר</h1>
+      </div>
       <nav class="flex gap-2">
-        <button id="tab-home" class="btn px-3 py-2 rounded-lg bg-purple-600 text-white">בית</button>
-        <button id="tab-dash" class="btn px-3 py-2 rounded-lg hover:bg-purple-100 text-purple-700">דשבורד</button>
+        <button id="tab-home" class="tab bg-purple-600 text-white">בית</button>
+        <button id="tab-dash" class="tab hover:bg-purple-50">דשבורד</button>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
-
-    <!-- ====== HOME VIEW ====== -->
+  <main class="max-w-4xl mx-auto px-4 py-5 sm:py-8">
+    <!-- HOME VIEW -->
     <section id="view-home" class="space-y-6">
-
-      <!-- Summary / Progress -->
-      <div class="card glass p-4 sm:p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-bold text-gray-800 mb-1">היום • <span id="today-label" class="text-purple-700"></span></h2>
-            <p class="text-sm text-gray-600">משימות קצרות לי ולבנות + מיקוד לפי אזור</p>
-          </div>
-          <div class="relative w-16 h-16">
-            <svg viewBox="0 0 120 120" class="ring-progress w-16 h-16">
-              <circle stroke="#eee" stroke-width="10" fill="transparent" r="52" cx="60" cy="60"></circle>
-              <circle id="progress-ring" stroke="#8b5cf6" stroke-width="10" fill="transparent" r="52" cx="60" cy="60" stroke-dasharray="326.73" stroke-dashoffset="326.73"></circle>
-            </svg>
-            <span id="progress-text" class="absolute inset-0 grid place-items-center text-xs font-bold text-purple-700">0%</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 mt-4">
-          <div class="text-center bg-green-50 rounded-lg py-2">
-            <div id="count-done" class="text-2xl font-extrabold text-green-600">0</div>
-            <div class="text-xs text-green-700">בוצעו היום</div>
-          </div>
-          <div class="text-center bg-blue-50 rounded-lg py-2">
-            <div id="count-active" class="text-2xl font-extrabold text-blue-600">0</div>
-            <div class="text-xs text-blue-700">פתוחות עכשיו</div>
-          </div>
-          <div class="text-center bg-purple-50 rounded-lg py-2">
-            <div id="count-month" class="text-2xl font-extrabold text-purple-600">0</div>
-            <div class="text-xs text-purple-700">בוצעו החודש</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Daily focus area -->
-      <div class="card glass p-4 sm:p-6">
+      <!-- TODAY CARDS -->
+      <div class="glass card p-4 sm:p-5">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-bold text-gray-800">🎯 פוקוס יומי לפי אזור</h3>
-          <span id="focus-area-chip" class="chip px-3 py-1 rounded-full text-xs font-semibold"></span>
-        </div>
-        <ul id="focus-list" class="space-y-2"></ul>
-        <div class="flex gap-2 mt-4">
-          <button id="btn-add-focus" class="btn px-3 py-2 rounded-lg bg-purple-600 text-white">+ הוסיפי סעיף</button>
-          <button id="btn-clear-focus" class="btn px-3 py-2 rounded-lg bg-rose-100 text-rose-700">נקה צ׳ק-ליסט</button>
-        </div>
-        <p class="text-xs text-gray-500 mt-2">טיפ: הדביקי כאן צעדים – כל שורה תהפוך לפריט לביצוע.</p>
-        <textarea id="focus-input" class="mt-3 w-full rounded-xl border border-purple-200 p-3 text-sm" rows="3" placeholder="הדביקי כאן צעדים (שורה לכל סעיף)"></textarea>
-        <button id="btn-build-focus" class="btn mt-2 w-full rounded-xl bg-purple-50 text-purple-700 py-2">צור/עדכן צ׳ק-ליסט</button>
-      </div>
-
-      <!-- Steph + Kids -->
-      <div class="grid gap-6">
-
-        <!-- Steph -->
-        <div class="card glass p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800">🧍‍♀️ סטפני – קצרות היום</h3>
-            <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">10–15 ד׳ כל משימה</span>
+          <h2 class="font-bold text-lg">משימות להיום</h2>
+          <div class="flex gap-2">
+            <button id="btn-refresh" class="btn btn-ghost">🔄 טען משימות חדשות</button>
+            <button id="btn-test-notify" class="btn btn-ghost">🔔 בדיקת תזכורת</button>
           </div>
-          <ul id="list-steph" class="space-y-2"></ul>
         </div>
 
-        <!-- Kid: Mafal -->
-        <div class="card glass p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800">👧 מפל (10) – 2 קלות</h3>
-            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">יומי משתנה</span>
+        <div class="grid gap-4">
+          <!-- STEPH -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-purple-50 text-purple-700">סטפני</span>
+                <span class="text-gray-400 text-sm">(2 משימות קצרות בימים א׳–ה׳)</span>
+              </div>
+            </div>
+            <ul id="list-steph" class="space-y-2"></ul>
           </div>
-          <ul id="list-mafal" class="space-y-2"></ul>
-        </div>
 
-        <!-- Kid: Maayan -->
-        <div class="card glass p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800">👧 מעיין (8) – 2 קלות</h3>
-            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">יומי משתנה</span>
+          <!-- KIDS -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="glass p-3 rounded-xl">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🧒</span>
+                  <span class="font-semibold">מַפַל – 10</span>
+                  <span class="chip bg-emerald-50 text-emerald-700">2 יומיות</span>
+                </div>
+                <div class="text-sm text-emerald-700 font-bold">⭐ <span id="pts-mafal">0</span></div>
+              </div>
+              <ul id="list-mafal" class="space-y-2"></ul>
+            </div>
+
+            <div class="glass p-3 rounded-xl">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🧒</span>
+                  <span class="font-semibold">מעיין – 8</span>
+                  <span class="chip bg-emerald-50 text-emerald-700">2 יומיות</span>
+                </div>
+                <div class="text-sm text-emerald-700 font-bold">⭐ <span id="pts-maayan">0</span></div>
+              </div>
+              <ul id="list-maayan" class="space-y-2"></ul>
+            </div>
           </div>
-          <ul id="list-maayan" class="space-y-2"></ul>
-        </div>
 
-        <!-- Weekend -->
-        <div class="card glass p-4 sm:p-6" id="weekend-card" hidden>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800">🧱 מורכבות לסופ״ש (סטפני)</h3>
-            <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold">שישי–שבת</span>
+          <!-- WEEKEND -->
+          <div id="weekend-card" class="hidden">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="chip bg-red-50 text-red-700">שישי–שבת</span>
+              <span class="text-gray-400 text-sm">משימות מורכבות לסטפני + 2 קלות לבנות</span>
+            </div>
+            <ul id="list-weekend" class="space-y-2"></ul>
           </div>
-          <ul id="list-weekend" class="space-y-2"></ul>
         </div>
 
-      </div>
-
-      <!-- Actions -->
-      <div class="flex flex-wrap gap-3">
-        <button id="btn-new" class="btn px-4 py-2 rounded-xl bg-sky-600 text-white">🔄 טען משימות חדשות</button>
-        <button id="btn-notify" class="btn px-4 py-2 rounded-xl bg-purple-600 text-white">🔔 בדיקת תזכורת</button>
-        <button id="btn-reset" class="btn px-4 py-2 rounded-xl bg-rose-600 text-white">🗑️ אפס יום</button>
-      </div>
-
-      <!-- History today -->
-      <div class="card glass p-4 sm:p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-3">מה הושלם היום</h3>
-        <div id="done-today" class="space-y-2 text-sm text-gray-700">
-          עדיין לא הושלמו משימות.
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="btn-clear-day" class="btn bg-rose-600 text-white">🗑 אפס יום</button>
+          <button id="btn-enable-notify" class="btn btn-solid btn-pill">הפעל תזכורת יומית</button>
         </div>
       </div>
 
+      <!-- DONE TODAY -->
+      <div class="glass card p-4">
+        <h3 class="font-bold mb-2">מה הושלם היום</h3>
+        <div id="done-today" class="text-gray-500">עדיין לא הושלמו משימות.</div>
+      </div>
     </section>
 
-    <!-- ====== DASHBOARD VIEW ====== -->
+    <!-- DASH VIEW -->
     <section id="view-dash" class="hidden space-y-6">
-
-      <div class="card glass p-4 sm:p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">📊 סיכום חודשי</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="text-center bg-white rounded-xl p-3 border">
-            <div class="text-xs text-gray-500">טרם טופלו</div>
-            <div id="dash-open" class="text-2xl font-extrabold text-gray-800">0</div>
+      <div class="glass card p-4">
+        <h2 class="font-bold text-lg mb-3">סיכום חודשי</h2>
+        <div class="grid-cards">
+          <div class="glass p-4 text-center">
+            דחיתי
+            <div class="text-3xl font-extrabold text-orange-500" id="stat-defer">0</div>
           </div>
-          <div class="text-center bg-white rounded-xl p-3 border">
-            <div class="text-xs text-gray-500">דילגתי</div>
-            <div id="dash-skip" class="text-2xl font-extrabold text-amber-600">0</div>
+          <div class="glass p-4 text-center">
+            טרם טופלו
+            <div class="text-3xl font-extrabold text-gray-700" id="stat-open">0</div>
           </div>
-          <div class="text-center bg-white rounded-xl p-3 border">
-            <div class="text-xs text-gray-500">הושלמו</div>
-            <div id="dash-done" class="text-2xl font-extrabold text-emerald-600">0</div>
+          <div class="glass p-4 text-center">
+            הושלמו
+            <div class="text-3xl font-extrabold text-emerald-600" id="stat-done">0</div>
           </div>
-          <div class="text-center bg-white rounded-xl p-3 border">
-            <div class="text-xs text-gray-500">דחיתי</div>
-            <div id="dash-defer" class="text-2xl font-extrabold text-sky-600">0</div>
+          <div class="glass p-4 text-center">
+            דילגתי
+            <div class="text-3xl font-extrabold text-sky-600" id="stat-skip">0</div>
           </div>
         </div>
       </div>
 
-      <div class="card glass p-4 sm:p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-3">🏠 התקדמות לפי אזור (חודשי)</h3>
-        <div id="areas" class="space-y-3"></div>
+      <div class="glass card p-4">
+        <h2 class="font-bold text-lg mb-4 flex items-center gap-2">התקדמות לפי אזור (חודשי) <span class="text-xl">🏠</span></h2>
+        <div id="areas-progress" class="space-y-4"></div>
       </div>
 
+      <div class="glass card p-4">
+        <h2 class="font-bold text-lg mb-3">ניקוד הבנות</h2>
+        <div class="flex gap-4">
+          <div class="glass p-4 rounded-xl flex-1">
+            <div class="text-sm text-gray-500">מפל</div>
+            <div class="text-3xl font-extrabold text-emerald-600">⭐ <span id="pts-mafal-lg">0</span></div>
+          </div>
+          <div class="glass p-4 rounded-xl flex-1">
+            <div class="text-sm text-gray-500">מעיין</div>
+            <div class="text-3xl font-extrabold text-emerald-600">⭐ <span id="pts-maayan-lg">0</span></div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
-  <!-- Toast -->
-  <div id="toast" class="toast hidden">
-    <div class="bg-gray-900/90 text-white rounded-xl px-4 py-2 shadow-lg text-sm">בדיקה</div>
-  </div>
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
 
-<script>
-/* ========= בסיס נתונים קטן ========= */
+  <script>
+    // ------------- UTIL -------------
+    const qs = s => document.querySelector(s);
+    const qsa = s => [...document.querySelectorAll(s)];
+    const toast = (msg) => {
+      const t = qs('#toast'); t.textContent = msg; t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'), 1700);
+    }
+    const todayKey = () => new Date().toISOString().slice(0,10);
+    const monthKey = () => new Date().toISOString().slice(0,7);
+    const isWeekend = (() => {
+      const d=new Date().getDay(); // 0=Sun ... 6=Sat
+      return d===5 || d===6; // Fri/Sat
+    })();
+    const save = () => localStorage.setItem('orgState', JSON.stringify(STATE));
+    const load = () => JSON.parse(localStorage.getItem('orgState')||'{}');
 
-// אזורים
-const AREAS = [
-  "סלון","מטבח","אי","מרפסת שירות","חדר משחקים",
-  "שירותים/אמבטיה משחקים","שירותים/אמבטיה בנות",
-  "חדר ילדים","חדר ארונות","חדר שינה הורים",
-  "שירותים/אמבטיה הורים","חצר קדמית","חצר אחורית"
-];
-
-// פוקוס יומי מובנה (משימות קטנות לכל אזור)
-const FOCUS_LIBRARY = {
-  "סלון":[
-    "לאסוף צעצועים/בגדים מהספה","לפנות שולחן סלון","ניקוי וניגוב שולחן סלון",
-    "להחזיר נעליים למקום","לטאטא סלון מהיר","ניגוב אבק מדף/שלטים",
-    "ניקוי ספות – שאיבה מהירה","שואב מתחת לספה 5 ד׳"
-  ],
-  "מטבח":[
-    "לפנות אי – כל פריט למקומו","ניגוב האי","מיון דואר/דפים על האי",
-    "ניגוב ידיות/מתגים","מיון 1 מגירה","ניקוי דלתות ארונות מטבח"
-  ],
-  "אי":[ "לפנות אי לחלוטין","ניגוב יסודי לאי","להחזיר רק מה שצריך" ],
-  "מרפסת שירות":[ "מיון 10 פריטים למד/תרומה","לקפל סל כביסה אחד","להחזיר סלים למקום" ],
-  "חדר משחקים":[
-    "איסוף צעצועים לתיבה","מיון צעצועים: לשמור/לתרום","ניגוב שולחן יצירה"
-  ],
-  "שירותים/אמבטיה משחקים":[ "ניגוב כיור וידיות","ניקוי אסלה מהיר","שטיפת רצפה נקודתית" ],
-  "שירותים/אמבטיה בנות":[ "ניגוב מראות","ניקוי כיור","סידור מוצרי רחצה" ],
-  "חדר ילדים":[ "החזרת בגדים לארון","סידור שולחן כתיבה","איסוף מהרצפה" ],
-  "חדר ארונות":[ "מיון מדף אחד","החזרת בגדים מקופלים","בדיקת תרומה 5 פריטים" ],
-  "חדר שינה הורים":[ "פינוי שוליות/שידות","החלפת מצעים (אם צריך)","ניגוב אבק מהיר" ],
-  "שירותים/אמבטיה הורים":[ "ניקוי כיור","ניגוב מראות","סידור מוצרים" ],
-  "חצר קדמית":[ "איסוף לכלוך גלוי","טאטוא מהיר","ריקון פח אם מלא" ],
-  "חצר אחורית":[ "איסוף משחקי חצר","טאטוא פטיו","סידור אזור ישיבה" ],
-};
-
-// משימות מורכבות (שישי–שבת)
-const WEEKEND_COMPLEX = [
-  "ניקוי ספות (שאיבה + כתמים נקודתיים)",
-  "ניקוי חלונות ומסילות – סלון",
-  "ניקוי חלונות ומסילות – מטבח",
-  "ניקוי חלונות ומסילות – יציאה לחצר",
-  "ניקוי חלונות ומסילות – חדר משחקים",
-  "ניקוי חלונות ומסילות – חדר אמבטיה משחקים",
-  "ניקוי חלונות ומסילות – חדר ילדים",
-  "ניקוי חלונות ומסילות – חדר שינה הורים",
-  "ניקוי חלונות ומסילות – חדר אמבטיה הורים",
-  "סידור ארון אחד (בחרי אזור)",
-  "מיון צעצועים עמוק – 30 ד׳",
-  "מיון ניירת/שקיות באי – 30 ד׳"
-];
-
-// מאגר משימות קצרות
-const POOL_STEPh = [
-  "פינוי וניגוב האי (10–15 ד׳)",
-  "פינוי שולחן סלון + ניגוב (10 ד׳)",
-  "מיון 1 מגירה במטבח (10 ד׳)",
-  "ניגוב מתגים/ידיות בכל הבית (10 ד׳)",
-  "מיון 10 פריטים לתרומה/אשפה (10 ד׳)",
-  "קיפול סל בגדים אחד (10–15 ד׳)",
-  "ניקוי מקלדת/שולחן עבודה (10 ד׳)",
-  "ניקוי מסך/שלטים (5–10 ד׳)"
-];
-
-const POOL_KID_COMMON = [
-  "להרים דברים מהאי ולהחזיר למקום",
-  "להרים דברים מהשולחן בסלון",
-  "להרים מהספה ולהחזיר למקום",
-  "ניקוי/ניגוב שולחן סלון או אי",
-  "לטאטא סלון 5 ד׳",
-  "איסוף צעצועים מחדר משחקים",
-  "מסדרות נעליים בכניסה",
-  "להחזיר ספרים למדף",
-  "להעביר מגב נקודתי אם יש לכלוך",
-  "הכנת תיק לבוקר למחר (במקום)"
-];
-
-/* ========= עזר ========= */
-
-const qs = s=>document.querySelector(s);
-const qsa = s=>Array.from(document.querySelectorAll(s));
-const today = new Date();
-const dayName = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"][today.getDay()];
-qs("#today-label").textContent = dayName;
-const isWeekend = today.getDay()===5 || today.getDay()===6;
-
-const KEY = {
-  STATE:"house.state.v3", // כולל counters, היסטוריה, דחויים
-  FOCUS:"house.focus.v3"  // רשימת צ׳קליסט לפי אזור ליום הנוכחי
-};
-
-// טעינה/שמירה
-function loadState(){
-  try{
-    return JSON.parse(localStorage.getItem(KEY.STATE))||{
-      monthDone:0, monthSkip:0, monthDefer:0,
-      history:{}, // yyyy-mm-dd -> [{title,who,area,action}]
-      todays:{done:[], open:[]}, // ids של משימות היום
-      deferred:[] // [{title,who,area,date}]
+    // ------------- DATA (pools) -------------
+    // areas & monthly goals (approx how many tasks per month to reach 100%)
+    const AREAS = {
+      "סלון": 20, "מטבח": 28, "אי": 12, "מרפסת שירות": 10, "חדר משחקים": 18,
+      "שירותים/אמבטיה משחקים": 12, "שירותים/אמבטיה בנות": 12, "חדר שינה ילדים": 16,
+      "חדר ארונות": 16, "חדר שינה הורים": 16, "שירותים/אמבטיה הורים": 12,
+      "חצר קדמית": 10, "חצר אחורית": 10
     };
-  }catch(e){return {monthDone:0,monthSkip:0,monthDefer:0,history:{},todays:{done:[],open:[]},deferred:[]}}
-}
-function saveState(s){localStorage.setItem(KEY.STATE,JSON.stringify(s))}
-let STATE = loadState();
 
-function dateKey(d=new Date()){
-  return d.toISOString().slice(0,10);
-}
+    // Short kids tasks (rotate)
+    const KIDS = [
+      {title:"הרמה מהספה – צעצועים/בגדים", area:"סלון"},
+      {title:"הרמת דברים מהשולחן בסלון", area:"סלון"},
+      {title:"ניגוב שולחן סלון/אי", area:"סלון"},
+      {title:"ניגוב האי במטבח", area:"אי"},
+      {title:"איסוף נעליים לפינת נעליים", area:"כניסה"},
+      {title:"טאטוא סלון (5 דקות)", area:"סלון"},
+      {title:"איסוף צעצועים מהסלון לקופסה", area:"סלון"},
+      {title:"החזרת ספרים למדף", area:"סלון"},
+      {title:"להכין תיק לבוקר למחר (במקום)", area:"חדר שינה ילדים"},
+      {title:"סידור שולחן חדר משחקים", area:"חדר משחקים"},
+      {title:"ניגוב הכיור באמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
+      {title:"החזרת צעצועים לחדר משחקים", area:"חדר משחקים"},
+      {title:"איסוף כביסה לפח כביסה", area:"חדר שינה ילדים"},
+      {title:"פינוי פח קטן בחדר משחקים", area:"חדר משחקים"}
+    ];
 
-/* ========= בניית משימות יומיות ========= */
+    // Stephanie short tasks (10–15m, Sun–Thu)
+    const STEPH_SHORT = [
+      {title:"פינוי וניקוי שולחן סלון", area:"סלון"},
+      {title:"ניגוב משטחי מטבח", area:"מטבח"},
+      {title:"סידור וניקוי האי", area:"אי"},
+      {title:"מיון ערימת ניירת קטנה", area:"סלון"},
+      {title:"סידור כניסה – נעליים/תיקים", area:"כניסה"},
+      {title:"סידור מהיר חדר משחקים (15׳)", area:"חדר משחקים"},
+      {title:"ניקוי מראות + שלט רחוק", area:"סלון"},
+      {title:"ניקוי ידיות דלתות/מתגים", area:"סלון"},
+      {title:"ניגוב משטח אמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
+      {title:"קיפול כביסה + החזרה לארון", area:"חדר ארונות"},
+      {title:"שאיבה קלה סביב הספה", area:"סלון"},
+      {title:"ניקוי מסך טלוויזיה בעדינות", area:"סלון"},
+      {title:"סידור מגירת תבלינים קטנה", area:"מטבח"},
+      {title:"סידור מגירת גרביים (10׳)", area:"חדר ארונות"}
+    ];
 
-function pickRandom(arr, n){
-  const a=[...arr]; const out=[];
-  while(a.length && out.length<n){
-    const i=Math.floor(Math.random()*a.length);
-    out.push(a.splice(i,1)[0]);
-  }
-  return out;
-}
+    // Weekend complex for Stephanie
+    const WEEKEND_COMPLEX = [
+      {title:"ניקוי חלונות ומסילות – סלון", area:"סלון"},
+      {title:"ניקוי חלונות ומסילות – מטבח", area:"מטבח"},
+      {title:"ניקוי חלונות ומסילות – חדר משחקים", area:"חדר משחקים"},
+      {title:"ניקוי חלונות ומסילות – יציאה לחצר", area:"חצר אחורית"},
+      {title:"ניקוי חלונות ומסילות – אמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
+      {title:"ניקוי חלונות ומסילות – חדר ילדים", area:"חדר שינה ילדים"},
+      {title:"ניקוי חלונות ומסילות – חדר שינה הורים", area:"חדר שינה הורים"},
+      {title:"ניקוי חלונות ומסילות – אמבטיית הורים", area:"שירותים/אמבטיה הורים"},
+      {title:"ניקוי ספות יסודי (אבק/שאיבה/כתמים)", area:"סלון"},
+      {title:"סידור ארון אחד (חדר ארונות)", area:"חדר ארונות"},
+      {title:"סידור ארון מטבח אחד", area:"מטבח"},
+      {title:"סידור חדר משחקים עומק – קופסה/מדף", area:"חדר משחקים"},
+      {title:"מיון צעצועים למסירה/זריקה", area:"חדר משחקים"},
+      {title:"טיפול חצר קדמית – איסוף/סידור", area:"חצר קדמית"},
+      {title:"טיפול חצר אחורית – איסוף/סידור", area:"חצר אחורית"},
+      {title:"החלפת מצעים – חדר ילדים", area:"חדר שינה ילדים"},
+      {title:"החלפת מצעים – חדר שינה הורים", area:"חדר שינה הורים"}
+    ];
 
-function buildDailyTasks(){
-  const todayKey = dateKey();
-  // אם כבר נבנו היום – לא נבנה שוב (רק אם לוחצים "טען משימות חדשות" נאפס)
-  if(STATE.todays.open.length && STATE.history[todayKey]) return;
+    // + Extra housekeeping rotation to reach month depth (bedding etc.)
+    const MONTHLY_ROTATION = [
+      {title:"החלפת מצעים – בנות", area:"חדר שינה ילדים"},
+      {title:"החלפת מצעים – הורים", area:"חדר שינה הורים"},
+      {title:"ניקוי מיקרוגל/תנור קצר", area:"מטבח"},
+      {title:"ניקוי מקרר מדף אחד", area:"מטבח"},
+      {title:"ניקוי אבק מדפי סלון", area:"סלון"},
+      {title:"סידור תיבת תרופות", area:"מטבח"},
+      {title:"ניקוי מסילות דלת היציאה", area:"חצר אחורית"},
+      {title:"סידור מגירת כלים", area:"מטבח"},
+      {title:"ניקוי פחים – שטיפה", area:"מטבח"},
+      {title:"ניקוי כיור אמבטיה הורים", area:"שירותים/אמבטיה הורים"},
+      {title:"ניקוי כיור אמבטיה משחקים", area:"שירותים/אמבטיה משחקים"},
+      {title:"ניקוי חלונות קטנים מסביב לבית", area:"סלון"},
+      {title:"ניקוי מתגים/ידיות בכל הבית", area:"סלון"}
+    ];
 
-  STATE.todays.open = []; STATE.todays.done = [];
-  STATE.history[todayKey] = [];
+    // ------------- STATE -------------
+    const DEFAULT = {
+      month: monthKey(),
+      points: {mafal:0, maayan:0},
+      history: {}, // dateKey -> [{title,who,area,action,ts}]
+      monthDone: 0, monthSkip:0, monthDefer:0,
+      todays: {date: todayKey(), open:[], done:[]},
+      deferred: [], // {title, who, area, date}
+      notify: {enabled:false}
+    };
+    let STATE = Object.assign({}, DEFAULT, load());
 
-  // סטפני: א-ה שתי משימות קצרות; שישי-שבת אין קצרות (רק מורכבות), אבל אפשר גם שתיים קצרות אם תרצי – כרגע לא.
-  if(!isWeekend){
-    pickRandom(POOL_STEPh,2).forEach(t=>{
-      STATE.todays.open.push({id:crypto.randomUUID(), title:t, who:"steph", area:null});
-    });
-  }
+    // reset if month changed
+    if(STATE.month !== monthKey()){
+      STATE = Object.assign({}, DEFAULT, {points: STATE.points}); // נשמור נקודות
+    }
+    // reset if day changed
+    if(STATE.todays.date !== todayKey()){
+      STATE.todays = {date: todayKey(), open:[], done:[]};
+    }
 
-  // בנות – כל יום 2 לכל אחת
-  pickRandom(POOL_KID_COMMON,2).forEach(t=>{
-    STATE.todays.open.push({id:crypto.randomUUID(), title:t, who:"mafal", area:null});
-  });
-  pickRandom(POOL_KID_COMMON.filter(x=>!STATE.todays.open.some(o=>o.title===x)),2).forEach(t=>{
-    STATE.todays.open.push({id:crypto.randomUUID(), title:t, who:"maayan", area:null});
-  });
+    // ------------- GENERATORS -------------
+    // small deterministic RNG per day (so ריענון לא יחליף כשלא לוחצים)
+    function daySeed() {
+      const s = todayKey().replaceAll('-',''); let x=0;
+      for (let i=0;i<s.length;i++) x = (x*31 + s.charCodeAt(i)) % 9973;
+      return () => (x = (x*1103515245+12345) % 2**31) / 2**31;
+    }
+    function pickN(arr, n, rnd=Math.random){
+      const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]];}
+      return a.slice(0,Math.min(n,a.length));
+    }
 
-  // סופ״ש – משימות מורכבות לסטפני + 2 קלות לכל ילדה
-  if(isWeekend){
-    pickRandom(WEEKEND_COMPLEX,3).forEach(t=>{
-      STATE.todays.open.push({id:crypto.randomUUID(), title:t, who:"steph-weekend", area:null});
-    });
-  }
+    function buildToday(force=false){
+      const rnd = daySeed();
+      if(STATE.todays.open.length && !force) return;
 
-  saveState(STATE);
-}
+      const isWE = isWeekend;
+      const open=[];
 
-/* ========= פוקוס יומי לפי אזור ========= */
-
-function todayArea(){
-  // מחלקים את החודש לאזורים ברוטציה
-  const day = today.getDate(); // 1..31
-  return AREAS[(day-1)%AREAS.length];
-}
-
-function loadFocusList(){
-  try{
-    const F = JSON.parse(localStorage.getItem(KEY.FOCUS))||{};
-    return F[dateKey()]||null;
-  }catch(e){return null}
-}
-function saveFocusList(list){
-  const F = JSON.parse(localStorage.getItem(KEY.FOCUS)||"{}");
-  F[dateKey()] = list;
-  localStorage.setItem(KEY.FOCUS, JSON.stringify(F));
-}
-
-/* ========= UI ========= */
-
-function toast(msg){
-  const t = qs("#toast");
-  t.querySelector("div").textContent = msg;
-  t.classList.remove("hidden");
-  setTimeout(()=>t.classList.add("hidden"), 2000);
-}
-
-function renderProgress(){
-  const done = STATE.todays.done.length;
-  const total = STATE.todays.open.length + done;
-  const pct = total? Math.round(done/total*100) : 0;
-  qs("#count-done").textContent = done;
-  qs("#count-active").textContent = STATE.todays.open.length;
-  qs("#count-month").textContent = STATE.monthDone;
-  qs("#progress-text").textContent = pct+"%";
-  const circumference = 2*Math.PI*52;
-  const offset = circumference - (pct/100)*circumference;
-  qs("#progress-ring").style.strokeDashoffset = offset.toFixed(2);
-}
-
-function liTemplate(task){
-  return `
-  <li class="flex items-center justify-between bg-white border rounded-xl p-3">
-    <div class="flex items-center gap-3">
-      <span class="text-xl">${task.who==="mafal"?"🧒":task.who==="maayan"?"🧒":task.who==="steph-weekend"?"🧱":"🧍‍♀️"}</span>
-      <div>
-        <div class="font-semibold text-gray-800 text-sm">${task.title}</div>
-        ${task.area?`<div class="text-xs text-purple-700">${task.area}</div>`:""}
-      </div>
-    </div>
-    <div class="flex gap-1">
-      <button class="btn px-2 py-1 text-xs rounded-lg bg-emerald-100 text-emerald-700" data-act="done" data-id="${task.id}">בוצע</button>
-      <button class="btn px-2 py-1 text-xs rounded-lg bg-amber-100 text-amber-700" data-act="skip" data-id="${task.id}">דלג</button>
-      <button class="btn px-2 py-1 text-xs rounded-lg bg-sky-100 text-sky-700" data-act="defer" data-id="${task.id}">דחה</button>
-    </div>
-  </li>`;
-}
-
-function renderLists(){
-  const steph = STATE.todays.open.filter(t=>t.who==="steph");
-  const mafal = STATE.todays.open.filter(t=>t.who==="mafal");
-  const maayan= STATE.todays.open.filter(t=>t.who==="maayan");
-  const weekend= STATE.todays.open.filter(t=>t.who==="steph-weekend");
-
-  qs("#list-steph").innerHTML  = steph.map(liTemplate).join("") || `<div class="text-sm text-gray-500">אין כרגע. לחצי "טען משימות" אם תרצי חדשות.</div>`;
-  qs("#list-mafal").innerHTML  = mafal.map(liTemplate).join("") || `<div class="text-sm text-gray-500">אין משימות כרגע.</div>`;
-  qs("#list-maayan").innerHTML = maayan.map(liTemplate).join("") || `<div class="text-sm text-gray-500">אין משימות כרגע.</div>`;
-
-  const weekendCard = qs("#weekend-card");
-  if(isWeekend){
-    weekendCard.hidden = false;
-    qs("#list-weekend").innerHTML = weekend.map(liTemplate).join("");
-  } else {
-    weekendCard.hidden = true;
-  }
-
-  // היסטוריה יומית
-  const todayKey = dateKey();
-  const H = STATE.history[todayKey]||[];
-  qs("#done-today").innerHTML = H.filter(x=>x.action==="done").length
-    ? H.filter(x=>x.action==="done").map(x=>`<div class="bg-green-50 border border-green-100 rounded-lg p-2">✅ ${x.title}</div>`).join("")
-    : "עדיין לא הושלמו משימות.";
-}
-
-function bindListClicks(){
-  ["list-steph","list-mafal","list-maayan","list-weekend"].forEach(id=>{
-    const ul = qs("#"+id);
-    ul.addEventListener("click", ev=>{
-      const btn = ev.target.closest("button[data-id]");
-      if(!btn) return;
-      const id = btn.dataset.id, act = btn.dataset.act;
-      const idx = STATE.todays.open.findIndex(t=>t.id===id);
-      if(idx<0) return;
-
-      const task = STATE.todays.open[idx];
-      STATE.todays.open.splice(idx,1);
-
-      const todayKey = dateKey();
-      STATE.history[todayKey] = STATE.history[todayKey]||[];
-
-      if(act==="done"){
-        STATE.todays.done.push(task);
-        STATE.monthDone++;
-        STATE.history[todayKey].push({title:task.title, who:task.who, area:task.area, action:"done", ts:Date.now()});
-      }else if(act==="skip"){
-        STATE.monthSkip++;
-        STATE.history[todayKey].push({title:task.title, who:task.who, area:task.area, action:"skip", ts:Date.now()});
-      }else{ // defer
-        STATE.monthDefer++;
-        STATE.deferred.push({title:task.title, who:task.who, area:task.area, date:todayKey});
-        STATE.history[todayKey].push({title:task.title, who:task.who, area:task.area, action:"defer", ts:Date.now()});
+      // Stephanie – two short Sun–Thu
+      if(!isWE){
+        pickN(STEPH_SHORT,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"steph"}));
+      } else {
+        // complex + 2 kids still appear below
+        pickN(WEEKEND_COMPLEX,3,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"steph-weekend"}));
       }
 
-      saveState(STATE);
-      renderLists(); renderProgress(); renderDashboard();
-    });
-  });
-}
+      // Kids – always 2+2
+      pickN(KIDS,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"mafal"}));
+      pickN(KIDS,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"maayan"}));
 
-/* ========= פוקוס/אזור ========= */
+      // monthly rotation – slip one extra depth task some days
+      if(rnd()>.6){ open.push({...pickN(MONTHLY_ROTATION,1,rnd)[0], id:crypto.randomUUID(), who:"steph"}); }
 
-function renderFocusArea(){
-  const area = todayArea();
-  qs("#focus-area-chip").textContent = area;
-
-  // טען/ברירת מחדל מהספרייה
-  const saved = loadFocusList();
-  let list = saved || (FOCUS_LIBRARY[area]||[]).slice(0,4);
-  const ul = qs("#focus-list");
-  if(!list.length){
-    ul.innerHTML = `<li class="text-sm text-gray-500">הדביקי למעלה צעדים ולחצי "צור/עדכן צ׳ק-ליסט".</li>`;
-    return;
-  }
-  ul.innerHTML = list.map((txt,i)=>`
-    <li class="flex items-center justify-between bg-white border rounded-xl p-2">
-      <label class="flex items-center gap-2">
-        <input type="checkbox" class="focus-check accent-purple-600" data-idx="${i}">
-        <span class="text-sm">${txt}</span>
-      </label>
-      <button class="btn text-xs px-2 py-1 rounded-lg bg-rose-100 text-rose-700" data-remove="${i}">הסר</button>
-    </li>
-  `).join("");
-
-  ul.onclick = (e)=>{
-    const r = e.target.closest("button[data-remove]");
-    if(r){
-      list.splice(+r.dataset.remove,1);
-      saveFocusList(list);
-      renderFocusArea();
-      renderDashboard();
-      return;
+      STATE.todays.open = open;
+      save();
     }
-    const cb = e.target.closest("input.focus-check");
-    if(cb){
-      // סימון בפרוגרס אזורי – נחשב 1 נקודה
-      const checked = qsa("input.focus-check:checked").length;
-      // לא נדרש שמירה פרטנית כרגע; מספיק לדוחות חודשיים דרך ההיסטוריה אם נרצה.
+
+    // ------------- RENDER -------------
+    function taskLi(t){
+      return `
+      <li class="flex items-center justify-between bg-white border rounded-xl p-3">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">${t.who==="mafal"?"🧒":t.who==="maayan"?"🧒":t.who==="steph-weekend"?"🧱":"🧍‍♀️"}</span>
+          <div>
+            <div class="font-semibold text-gray-800 text-sm">${t.title}</div>
+            ${t.area?`<div class="text-xs text-purple-700">${t.area}</div>`:""}
+          </div>
+        </div>
+        <div class="flex gap-1">
+          <button class="btn px-2 py-1 text-xs rounded-lg bg-emerald-100 text-emerald-700" data-act="done" data-id="${t.id}" type="button">בוצע</button>
+          <button class="btn px-2 py-1 text-xs rounded-lg bg-sky-100 text-sky-700" data-act="skip" data-id="${t.id}" type="button">דלג</button>
+          <button class="btn px-2 py-1 text-xs rounded-lg bg-amber-100 text-amber-700" data-act="defer" data-id="${t.id}" type="button">דחה</button>
+        </div>
+      </li>`;
     }
-  };
-}
 
-qs("#btn-add-focus").onclick = ()=>{
-  const val = prompt("הוסיפי סעיף חדש:");
-  if(!val) return;
-  const current = loadFocusList() || [];
-  current.push(val);
-  saveFocusList(current);
-  renderFocusArea();
-  renderDashboard();
-};
+    function renderLists(){
+      const open=STATE.todays.open;
+      const steph   = open.filter(t=>t.who==="steph");
+      const mafal   = open.filter(t=>t.who==="mafal");
+      const maayan  = open.filter(t=>t.who==="maayan");
+      const weekend = open.filter(t=>t.who==="steph-weekend");
 
-qs("#btn-build-focus").onclick = ()=>{
-  const txt = qs("#focus-input").value.trim();
-  if(!txt){ toast("אין טקסט לצ׳ק-ליסט"); return; }
-  const rows = txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  saveFocusList(rows);
-  qs("#focus-input").value="";
-  renderFocusArea();
-  toast("הצ׳ק-ליסט עודכן");
-};
+      qs("#list-steph").innerHTML  = steph.length ? steph.map(taskLi).join("") : `<div class="text-sm text-gray-500">אין כרגע. לחצי "טען משימות".</div>`;
+      qs("#list-mafal").innerHTML  = mafal.length ? mafal.map(taskLi).join("") : `<div class="text-sm text-gray-500">אין כרגע.</div>`;
+      qs("#list-maayan").innerHTML = maayan.length? maayan.map(taskLi).join(""): `<div class="text-sm text-gray-500">אין כרגע.</div>`;
 
-qs("#btn-clear-focus").onclick = ()=>{
-  saveFocusList([]);
-  renderFocusArea();
-  renderDashboard();
-};
+      const we = qs("#weekend-card");
+      if(isWeekend){ we.classList.remove("hidden"); qs("#list-weekend").innerHTML = weekend.length? weekend.map(taskLi).join(""):`<div class="text-sm text-gray-500">אין כרגע.</div>`; }
+      else{ we.classList.add("hidden"); }
 
-/* ========= דשבורד ========= */
-
-function renderDashboard(){
-  const open = STATE.todays.open.length;
-  const todayKey = dateKey();
-  const H = STATE.history[todayKey]||[];
-  const skipped = H.filter(x=>x.action==="skip").length;
-  const done = STATE.monthDone;
-  const deferred = STATE.monthDefer;
-
-  qs("#dash-open").textContent = open;
-  qs("#dash-skip").textContent = skipped;
-  qs("#dash-done").textContent = done;
-  qs("#dash-defer").textContent = deferred;
-
-  // התקדמות אזורית – מחשבים לפי כמה סעיפים מסומנים/קיימים היום + משימות עם area בעתיד
-  const wrap = qs("#areas");
-  const area = todayArea();
-  const focus = loadFocusList()||[];
-  const checked = qsa("input.focus-check:checked").length;
-
-  const pct = focus.length? Math.round(checked/focus.length*100) : 0;
-
-  wrap.innerHTML = `
-    <div class="bg-white border rounded-xl p-3">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold text-gray-800">${area}</div>
-        <div class="text-sm text-purple-700">${pct}%</div>
-      </div>
-      <div class="w-full bg-purple-100 rounded-full h-2 mt-2">
-        <div class="bg-purple-600 h-2 rounded-full" style="width:${pct}%"></div>
-      </div>
-      <div class="text-xs text-gray-500 mt-1">${checked}/${focus.length} סעיפים מסומנים היום</div>
-    </div>
-  `;
-}
-
-/* ========= התראות ========= */
-
-qs("#btn-notify").onclick = async ()=>{
-  try{
-    if("Notification" in window){
-      let perm = Notification.permission;
-      if(perm==="default") perm = await Notification.requestPermission();
-      if(perm==="granted"){ new Notification("🔔 בדיקה", { body:"התזכורת עובדת 😊" }); }
+      // Done today
+      const doneList = STATE.todays.done;
+      qs("#done-today").innerHTML = doneList.length
+        ? doneList.map(x=>`<div class="bg-green-50 border border-green-100 rounded-lg p-2">✅ ${x.title}</div>`).join("")
+        : "עדיין לא הושלמו משימות.";
     }
-    toast("הודעת בדיקה נשלחה");
-  }catch(e){ toast("הדפדפן חסם התראות"); }
-};
 
-/* ========= ניווט / פעולות כלליות ========= */
+    function renderDashboard(){
+      qs("#stat-done").textContent  = STATE.monthDone;
+      qs("#stat-skip").textContent  = STATE.monthSkip;
+      qs("#stat-defer").textContent = STATE.monthDefer;
+      qs("#stat-open").textContent  = STATE.todays.open.length;
 
-qs("#btn-new").onclick = ()=>{
-  STATE.todays.open = [];
-  STATE.todays.done = [];
-  buildDailyTasks();
-  saveState(STATE);
-  renderLists(); renderProgress();
-  toast("נטענו משימות חדשות");
-};
+      qs("#pts-mafal").textContent = qs("#pts-mafal-lg").textContent = STATE.points.mafal;
+      qs("#pts-maayan").textContent= qs("#pts-maayan-lg").textContent= STATE.points.maayan;
 
-qs("#btn-reset").onclick = ()=>{
-  if(!confirm("לאפס את נתוני היום?")) return;
-  const k = dateKey();
-  STATE.history[k]=[];
-  STATE.todays={done:[],open:[]};
-  buildDailyTasks();
-  saveState(STATE);
-  renderLists(); renderProgress(); renderDashboard();
-};
+      // per-area progress
+      const progress = {};
+      // collect month history done only
+      Object.entries(STATE.history).forEach(([d,items])=>{
+        if(!d.startsWith(monthKey())) return;
+        items.forEach(it=>{ if(it.action==="done"){ progress[it.area]=(progress[it.area]||0)+1; }});
+      });
+      const wrap = qs("#areas-progress"); wrap.innerHTML="";
+      Object.entries(AREAS).forEach(([area,goal])=>{
+        const val = progress[area]||0;
+        const pct = Math.min(100, Math.round((val/goal)*100));
+        const row = document.createElement("div");
+        row.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <div class="font-semibold">${area}</div>
+            <div class="text-sm text-gray-500">${val}/${goal}</div>
+          </div>
+          <div class="progress"><span style="width:${pct}%"></span></div>
+        `;
+        wrap.appendChild(row);
+      });
+    }
 
-// Tabs
-const homeBtn = qs("#tab-home"), dashBtn = qs("#tab-dash");
-homeBtn.onclick = ()=>{
-  qs("#view-home").classList.remove("hidden");
-  qs("#view-dash").classList.add("hidden");
-  homeBtn.classList.add("bg-purple-600","text-white");
-  dashBtn.classList.remove("bg-purple-600","text-white");
-  dashBtn.classList.add("hover:bg-purple-100","text-purple-700");
-};
-dashBtn.onclick = ()=>{
-  qs("#view-home").classList.add("hidden");
-  qs("#view-dash").classList.remove("hidden");
-  dashBtn.classList.add("bg-purple-600","text-white");
-  homeBtn.classList.remove("bg-purple-600","text-white");
-  homeBtn.classList.add("hover:bg-purple-100","text-purple-700");
-};
+    function bindActions(){
+      ["list-steph","list-mafal","list-maayan","list-weekend"].forEach(id=>{
+        qs("#"+id).addEventListener("click", ev=>{
+          const btn = ev.target.closest("button[data-id]"); if(!btn) return;
+          const id = btn.dataset.id, act=btn.dataset.act;
+          const idx = STATE.todays.open.findIndex(x=>x.id===id); if(idx<0) return;
+          const task = STATE.todays.open[idx];
+          STATE.todays.open.splice(idx,1);
 
-/* ========= INIT ========= */
-(function init(){
-  buildDailyTasks();
-  renderLists(); renderProgress();
-  renderFocusArea(); renderDashboard();
-  bindListClicks();
-})();
-</script>
+          const today = todayKey();
+          STATE.history[today]=STATE.history[today]||[];
+
+          if(act==="done"){
+            STATE.todays.done.push(task);
+            STATE.monthDone++;
+            STATE.history[today].push({...task, action:"done", ts:Date.now()});
+
+            if(task.who==="mafal")  STATE.points.mafal += 1;
+            if(task.who==="maayan") STATE.points.maayan+= 1;
+            toast("כל הכבוד! ✅");
+
+          } else if(act==="skip"){
+            STATE.monthSkip++;
+            STATE.history[today].push({...task, action:"skip", ts:Date.now()});
+          } else {
+            STATE.monthDefer++;
+            STATE.deferred.push({...task, action:"defer", date:today});
+            STATE.history[today].push({...task, action:"defer", ts:Date.now()});
+          }
+
+          save(); renderLists(); renderDashboard();
+        }, {passive:true});
+      });
+
+      qs("#btn-refresh").onclick = () => { buildToday(true); save(); renderLists(); renderDashboard(); toast("ריעננתי משימות"); };
+      qs("#btn-clear-day").onclick= () => {
+        STATE.todays = {date:todayKey(), open:[], done:[]};
+        buildToday(true); save(); renderLists(); renderDashboard(); toast("אופסנו ליום חדש");
+      };
+
+      // tabs
+      const applyRoute = ()=> {
+        const dash = location.hash==="#dash";
+        qs("#view-home").classList.toggle("hidden", dash);
+        qs("#view-dash").classList.toggle("hidden", !dash);
+        qs("#tab-dash").classList.toggle("bg-purple-600", dash);
+        qs("#tab-dash").classList.toggle("text-white", dash);
+        qs("#tab-home").classList.toggle("bg-purple-600", !dash);
+        qs("#tab-home").classList.toggle("text-white", !dash);
+      };
+      window.addEventListener("hashchange", applyRoute);
+      qs("#tab-dash").onclick = ()=>{ location.hash="#dash"; applyRoute(); };
+      qs("#tab-home").onclick = ()=>{ location.hash="";      applyRoute(); };
+      applyRoute();
+
+      // notifications
+      qs("#btn-test-notify").onclick = () => showBrowserNotification(true);
+      qs("#btn-enable-notify").onclick = enableDailyNotification;
+    }
+
+    // ------------- NOTIFICATIONS -------------
+    let scheduleTimer=null;
+    function enableDailyNotification(){
+      if(!('Notification' in window)){ alert("הדפדפן לא תומך התראות."); return; }
+      if(Notification.permission==='granted'){
+        STATE.notify.enabled=true; save(); scheduleDaily(); toast("התזכורת הופעלה");
+      } else if(Notification.permission==='default'){
+        Notification.requestPermission().then(p=>{
+          if(p==='granted'){ STATE.notify.enabled=true; save(); scheduleDaily(); toast("התזכורת הופעלה"); }
+          else alert("כדי לקבל התראות צריך לאשר בדפדפן");
+        });
+      } else {
+        alert("התראות חסומות בדפדפן. אפשר לשנות בהגדרות האתר.");
+      }
+    }
+    function scheduleDaily(){
+      clearTimeout(scheduleTimer);
+      // next 21:00 today/מחר
+      const now=new Date();
+      const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0);
+      if(now>target) target.setDate(target.getDate()+1);
+      const ms=target-now;
+      scheduleTimer = setTimeout(()=>{
+        showBrowserNotification();
+        scheduleDaily(); // reschedule to tomorrow
+      }, ms);
+    }
+    function showBrowserNotification(force){
+      if(!force && !STATE.notify.enabled) return;
+      try{
+        new Notification('זמן לניקיון! 🏠', {body:'בואי לסיים 2-3 משימות קצרות עכשיו 🙂'});
+      }catch(e){ /* ignore */ }
+      toast("🔔 תזכורת נשלחה");
+    }
+
+    // ------------- INIT -------------
+    buildToday(false);
+    renderLists(); renderDashboard();
+    bindActions();
+    if(STATE.notify.enabled) scheduleDaily();
+  </script>
 </body>
 </html>
