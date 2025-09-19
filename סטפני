@@ -1,9 +1,0 @@
-/ (שורש)
-├── index.html
-├── manifest.json
-├── service-worker.js
-├── firebase-config.js            ← תשימי בו את ה-config שלך
-└── icons/
-    ├── icon-192.svg              ← אייקון זהב
-    ├── icon-512.svg
-    └── favicon.svg
