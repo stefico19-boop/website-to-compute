@@ -116,3 +116,647 @@
       <div class="card p-5">
         <div class="flex items-center justify-between">
           <h2 class="text-2xl">📅 תכנית חודשית – לפי אזור</h2>
+          <div class="flex gap-2 items-center">
+            <select id="plan-area-select" class="rounded-xl border border-gray-200 p-2">
+              <option>סלון</option><option>מטבח</option><option>אי</option><option>מרפסת שירות</option><option>חדר משחקים</option><option>שירותים/אמבטיה חדר משחקים</option><option>שירותים/אמבטיה בנות</option><option>חדר שינה ילדים</option><option>חדר ארונות</option><option>חדר שינה הורים</option><option>שירותים/אמבטיה הורים</option><option>חצר קדמית</option><option>חצר אחורית</option>
+            </select>
+            <button id="btn-plan-open" class="btn btn-ghost">פתח רשימת אזור ✨</button>
+          </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">כולל “ניקוי ספות” + “חלונות/מסילות” בכל האזורים שביקשת.</p>
+      </div>
+    </section>
+
+    <!-- ====== DASHBOARD ====== -->
+    <section id="view-dashboard" class="space-y-6 hidden">
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- בניין 1 -->
+        <div class="card p-5">
+          <h3 class="text-xl">🏗️ בניין 1 – מצב משימות (היום)</h3>
+          <div class="mt-3 space-y-2">
+            <button data-open="pending" class="w-full btn btn-ghost flex justify-between"><span>שטרם טופלו</span><b id="stat-pending">0</b></button>
+            <button data-open="skipped" class="w-full btn btn-ghost flex justify-between"><span>שדילגתי</span><b id="stat-skipped">0</b></button>
+            <button data-open="done" class="w-full btn btn-ghost flex justify-between"><span>שהושלמו (החודש)</span><b id="stat-done">0</b></button>
+          </div>
+        </div>
+
+        <!-- בניין 2 -->
+        <div class="card p-5">
+          <h3 class="text-xl">👭 בניין 2 – הבנות: נקודות השבוע</h3>
+          <div class="mt-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span>מפל</span><b id="pts-mafal">0</b>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>מעיין</span><b id="pts-maayan">0</b>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">כל “בוצע” במשימה של הבת = נקודה. מתאפס כל שבוע.</p>
+          </div>
+        </div>
+
+        <!-- בניין 3 -->
+        <div class="card p-5">
+          <h3 class="text-xl">📍 בניין 3 – התקדמות חודשית לפי אזור</h3>
+          <div id="areas-progress" class="mt-3 space-y-3"></div>
+          <p class="text-sm text-gray-500 mt-2">התקדמות = תכנית חודשית שסומנה + פריטי צ׳ק־ליסט מהחודש.</p>
+        </div>
+
+        <!-- בניין 4: היסטוריית נקודות -->
+        <div class="card p-5 md:col-span-3">
+          <h3 class="text-xl">📅 היסטוריית נקודות – שבועות קודמים</h3>
+          <div id="points-history" class="mt-3 overflow-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-gray-500">
+                  <th class="text-right p-2">שבוע</th>
+                  <th class="text-right p-2">מפל</th>
+                  <th class="text-right p-2">מעיין</th>
+                  <th class="text-right p-2">סה״כ</th>
+                  <th class="text-right p-2">פרסים</th>
+                </tr>
+              </thead>
+              <tbody id="points-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: רשימה / אזור -->
+  <dialog id="list-modal" class="rounded-2xl p-0 w-[min(92vw,640px)]">
+    <div class="p-4 border-b flex items-center justify-between">
+      <b id="modal-title">רשימה</b>
+      <button onclick="document.getElementById('list-modal').close()" class="btn btn-ghost">סגור</button>
+    </div>
+    <div id="modal-body" class="p-4 max-h-[70vh] overflow-auto space-y-2"></div>
+  </dialog>
+
+<script>
+/* ===================== בסיס + STORE ===================== */
+const OWNERS = ["אני","מפל","מעיין"];
+const AREAS  = ["סלון","מטבח","אי","מרפסת שירות","חדר משחקים","שירותים/אמבטיה חדר משחקים","שירותים/אמבטיה בנות","חדר שינה ילדים","חדר ארונות","חדר שינה הורים","שירותים/אמבטיה הורים","חצר קדמית","חצר אחורית"];
+
+const STORE = {
+  daily:   "v5_daily_state",
+  weekly:  "v3_weekly_state",
+  areaCL:  "v3_area_checklist",
+  plan:    "v1_area_month_plan",
+  notify:  "daily_notify_v2",
+  points:  "v1_points_week",     // {week:'YYYY-Wxx', mafal:Number, maayan:Number}
+  history: "v1_points_history",  // [{week, mafal, maayan, total, rewards:[...]}, ...]
+  rewards: "v1_rewards"          // [{week, owner, milestone, ts}]
+};
+
+function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function monthKey(ts){ const d=ts?new Date(ts):new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0'); }
+function weekKey(){ const d=new Date(); const onejan=new Date(d.getFullYear(),0,1); const w=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7); return d.getFullYear()+"-W"+String(w).padStart(2,'0'); }
+
+/* ===================== מאגרי משימות יומיות ===================== */
+const poolMafal = [
+  { id:'maf_island_pick', icon:'🟣', title:'לאסוף חפצים מהאי', owner:'מפל', area:'אי', minutes:5,  video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%90%D7%99+%D7%9E%D7%98%D7%91%D7%97' },
+  { id:'maf_table_pick',  icon:'🟣', title:'לאסוף מהשולחן בסלון', owner:'מפל', area:'סלון', minutes:5,  video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A1%D7%9C%D7%95%D7%9F' },
+  { id:'maf_sofa_pick',   icon:'🟣', title:'לאסוף מהספה (בגדים/צעצועים)', owner:'מפל', area:'סלון', minutes:5,  video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A1%D7%A4%D7%94' },
+  { id:'maf_wipe_island', icon:'🧻', title:'ניגוב מהיר – אי', owner:'מפל', area:'אי', minutes:7,  video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%92%D7%95%D7%91+%D7%9E%D7%A9%D7%98%D7%97%D7%99%D7%9D' },
+  { id:'maf_wipe_table',  icon:'🧻', title:'ניגוב מהיר – שולחן סלון', owner:'מפל', area:'סלון', minutes:7,  video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A1%D7%9C%D7%95%D7%9F' },
+  { id:'maf_broom_living',icon:'🧹', title:'לטאטא את הסלון (2 ד׳)', owner:'מפל', area:'סלון', minutes:5, video:'https://www.youtube.com/results?search_query=%D7%98%D7%99%D7%90%D7%95%D7%98+%D7%9E%D7%94%D7%99%D7%A8' },
+  { id:'maf_cushions',    icon:'🛋️', title:'לסדר כריות ושמיכה בספה', owner:'מפל', area:'סלון', minutes:5, video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A1%D7%9C%D7%95%D7%9F' },
+];
+
+const poolMaayan = [
+  { id:'may_island_pick', icon:'🟢', title:'לאסוף חפצים מהאי', owner:'מעיין', area:'אי', minutes:5,  video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%90%D7%99+%D7%9E%D7%98%D7%91%D7%97' },
+  { id:'may_table_pick',  icon:'🟢', title:'לאסוף מהשולחן בסלון', owner:'מעיין', area:'סלון', minutes:5,  video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A1%D7%9C%D7%95%D7%9F' },
+  { id:'may_wipe_island', icon:'🧻', title:'ניגוב מהיר – אי', owner:'מעיין', area:'אי', minutes:6,  video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%92%D7%95%D7%91+%D7%9E%D7%A9%D7%98%D7%97%D7%99%D7%9D' },
+  { id:'may_wipe_table',  icon:'🧻', title:'ניגוב מהיר – שולחן סלון', owner:'מעיין', area:'סלון', minutes:6,  video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A1%D7%9C%D7%95%D7%9F' },
+  { id:'may_broom_living',icon:'🧹', title:'לטאטא נקודתי בסלון', owner:'מעיין', area:'סלון', minutes:5, video:'https://www.youtube.com/results?search_query=%D7%98%D7%99%D7%90%D7%95%D7%98+%D7%9E%D7%94%D7%99%D7%A8' },
+  { id:'may_toys_bin',    icon:'🧸', title:'להחזיר צעצועים לסל', owner:'מעיין', area:'חדר משחקים', minutes:7, video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%A6%D7%A2%D7%A6%D7%95%D7%A2%D7%99%D7%9D' },
+];
+
+const poolSteph = [
+  { id:'st_fold10',      icon:'🧺', title:'לקפל 10 פריטים ולהחזיר לארון', owner:'אני', area:'חדר ארונות', minutes:12, video:'https://www.youtube.com/results?search_query=%D7%A7%D7%99%D7%A4%D7%95%D7%9C+%D7%9B%D7%91%D7%99%D7%A1%D7%94+%D7%9E%D7%94%D7%99%D7%A8' },
+  { id:'st_paper5',      icon:'🗂️', title:'למיין 5 ניירות/דואר', owner:'אני', area:'סלון', minutes:10, video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%A0%D7%99%D7%99%D7%A8%D7%95%D7%AA' },
+  { id:'st_bath_sink',   icon:'🚿', title:'כיור אמבטיה מהיר', owner:'אני', area:'שירותים/אמבטיה הורים', minutes:12, video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%9B%D7%99%D7%95%D7%A8' },
+  { id:'st_entry5',      icon:'🚪', title:'כניסה – 5 פריטים למקום', owner:'אני', area:'סלון', minutes:10, video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%9B%D7%A0%D7%99%D7%A1%D7%94' },
+];
+
+/* ===================== תכנית חודשית מפורטת (כולל ספות/חלונות) ===================== */
+const AREA_PLAN = {
+  "סלון": [
+    {id:"lv_sofa_deep",  text:"ניקוי ספות – שאיבה + טיפול כתמים", video:"https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%A1%D7%A4%D7%95%D7%AA"},
+    {id:"lv_windows",    text:"חלונות + מסילות – סלון",     video:"https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%9E%D7%A1%D7%99%D7%9C%D7%95%D7%AA+%D7%97%D7%9C%D7%95%D7%A0%D7%95%D7%AA"},
+    {id:"lv_shelves",    text:"מדפי טלוויזיה/ספרים – אבק וסידור"},
+    {id:"lv_rug",        text:"שטיח – שאיבה יסודית"},
+    {id:"lv_switches",   text:"מתגים/ידיות – ניגוב חיטוי"},
+  ],
+  "מטבח": [
+    {id:"kt_windows",    text:"חלונות + מסילות – מטבח",     video:"https://www.youtube.com/results?search_query=%D7%9E%D7%A1%D7%99%D7%9C%D7%95%D7%AA+%D7%97%D7%9C%D7%95%D7%A0%D7%95%D7%AA+%D7%9E%D7%98%D7%91%D7%97"},
+    {id:"kt_counters",   text:"משטחים – פינוי וניגוב יסודי"},
+    {id:"kt_fridge",     text:"מקרר – מדף/מגש אחד"},
+    {id:"kt_spices",     text:"מדף תבלינים – הוצאה, ניגוב, החזרה לפי קטגוריה"},
+  ],
+  "אי": [
+    {id:"island_clear",  text:"אי – פינוי מלא, ניגוב, החזרה מסודרת"},
+  ],
+  "מרפסת שירות": [
+    {id:"ut_windows",    text:"חלונות + מסילות – יציאה לחצר"},
+    {id:"ut_bins",       text:"מיון 2 סלי אחסון"},
+  ],
+  "חדר משחקים": [
+    {id:"pl_windows",    text:"חלונות + מסילות – חדר משחקים"},
+    {id:"pl_shelf",      text:"מדף צעצועים – סידור + קופסת תרומה"},
+  ],
+  "שירותים/אמבטיה חדר משחקים": [
+    {id:"bpl_windows",   text:"חלונות + מסילות – אמבטיה משחקים"},
+    {id:"bpl_sink",      text:"כיור/ברז – ניקוי אבנית"},
+  ],
+  "שירותים/אמבטיה בנות": [
+    {id:"bg_windows",    text:"חלונות + מסילות – אמבטיה בנות"},
+    {id:"bg_cabinet",    text:"ארון – מדף אחד"},
+  ],
+  "חדר שינה ילדים": [
+    {id:"kr_windows",    text:"חלונות + מסילות – חדר ילדים"},
+    {id:"kr_shelf",      text:"שולחן/מדף – 10 פריטים למקום"},
+  ],
+  "חדר ארונות": [
+    {id:"cl_shelf",      text:"מדף אחד – קיפול ומיון (תרומה/לזרוק)"},
+  ],
+  "חדר שינה הורים": [
+    {id:"pr_windows",    text:"חלונות + מסילות – חדר הורים"},
+    {id:"pr_tables",     text:"שידות לילה – פינוי וניגוב"},
+  ],
+  "שירותים/אמבטיה הורים": [
+    {id:"bp_windows",    text:"חלונות + מסילות – אמבטיה הורים"},
+    {id:"bp_glass",      text:"זכוכית מקלחון – ניגוב כתמי מים"},
+  ],
+  "חצר קדמית": [
+    {id:"yd_front",      text:"טאטוא וניקוי פינת ישיבה"},
+  ],
+  "חצר אחורית": [
+    {id:"yd_back",       text:"טאטוא, ארגון צעצועי חצר"},
+  ],
+};
+
+/* ===================== תכנית חודשית – סטטוס ===================== */
+function loadPlan(){
+  const raw = JSON.parse(localStorage.getItem(STORE.plan)||"{}");
+  const mk = monthKey();
+  if(raw.month!==mk) return {month:mk, done:{}}; 
+  return raw;
+}
+function savePlan(p){ localStorage.setItem(STORE.plan, JSON.stringify(p)); }
+
+/* ===================== יומי: בחירה ורינדור ===================== */
+function seedPick(arr,count){
+  const d = new Date(); const seed = d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+  const out=[]; let s=seed; const used=new Set();
+  while(out.length<count && used.size<arr.length){
+    s=(s*1664525+1013904223)%4294967296;
+    const idx=s%arr.length; if(!used.has(idx)){used.add(idx); out.push(arr[idx]);}
+  }
+  return out;
+}
+function isWeekend(){ const day=new Date().getDay(); return (day===5 || day===6); } // שישי/שבת
+function todaysTasks(){
+  const list=[];
+  if(isWeekend()){
+    // ו׳–ש׳: 1 משימה למפל + 1 למעיין (קלות)
+    seedPick(poolMafal,1).forEach(t=>list.push(t));
+    seedPick(poolMaayan,1).forEach(t=>list.push(t));
+  }else{
+    // א׳–ה׳: 2+2+2
+    seedPick(poolMafal,2).forEach(t=>list.push(t));
+    seedPick(poolMaayan,2).forEach(t=>list.push(t));
+    seedPick(poolSteph,2).forEach(t=>list.push(t));
+  }
+  return list;
+}
+
+function loadDailyState(){
+  const raw = JSON.parse(localStorage.getItem(STORE.daily) || "{}");
+  if(raw.date!==todayKey()) return {date:todayKey(), items:{}};
+  return raw;
+}
+function saveDailyState(st){ localStorage.setItem(STORE.daily, JSON.stringify(st)); }
+
+/* ===== נקודות שבועיות + היסטוריה + פרסים ===== */
+function loadPoints(){
+  const raw = JSON.parse(localStorage.getItem(STORE.points)||"{}");
+  const wk = weekKey();
+  if(raw.week!==wk) return {week:wk, mafal:0, maayan:0};
+  return raw;
+}
+function savePoints(p){ localStorage.setItem(STORE.points, JSON.stringify(p)); }
+
+function loadHistory(){ return JSON.parse(localStorage.getItem(STORE.history)||"[]"); }
+function saveHistory(h){ localStorage.setItem(STORE.history, JSON.stringify(h)); }
+
+function appendWeekToHistory(prev){
+  if(!prev?.week) return;
+  const hist = loadHistory();
+  const total = (prev.mafal||0)+(prev.maayan||0);
+  const rw = JSON.parse(localStorage.getItem(STORE.rewards)||"[]").filter(r=>r.week===prev.week);
+  hist.unshift({week: prev.week, mafal: prev.mafal||0, maayan: prev.maayan||0, total, rewards: rw});
+  saveHistory(hist);
+}
+
+function ensureWeekRollover(){
+  const raw = JSON.parse(localStorage.getItem(STORE.points)||"{}");
+  const wk = weekKey();
+  if(raw.week && raw.week !== wk){
+    appendWeekToHistory(raw);
+    savePoints({week:wk, mafal:0, maayan:0});
+  }else if(!raw.week){
+    savePoints({week:wk, mafal:0, maayan:0});
+  }
+}
+
+function pushReward(owner, milestone){
+  const list = JSON.parse(localStorage.getItem(STORE.rewards)||"[]");
+  list.push({week: weekKey(), owner, milestone, ts: Date.now()});
+  localStorage.setItem(STORE.rewards, JSON.stringify(list));
+}
+
+function checkRewards(owner, prevVal, newVal){
+  [10,20].forEach(m=>{
+    if(prevVal < m && newVal >= m){
+      pushReward(owner, m);
+      toast(`🏅 כל הכבוד ${owner}! הגעת ל־${m} נק׳ השבוע 🎉`);
+    }
+  });
+}
+
+/* הודעות מוטיבציה */
+const MOTIVATION = {
+  "אני":    ["כל צעד קטן – בית גדול ✨","סיימת! עוד 10 דקות ואת מלכה 👑","יפה! את על זה 🔥"],
+  "מפל":   ["מפל אלופה! 💜","איזו חרוצה! המשכת מעולה 👏","WOW מפל – תותחית! 🌟"],
+  "מעיין": ["מעיין, עבודה מושלמת! 💚","איזו אלופה את! המשיכי כך 😊","מעיין – בום! משימה גמורה 🎯"]
+};
+function motivate(owner){ const a=MOTIVATION[owner]||["כל הכבוד!"]; toast(a[Math.floor(Math.random()*a.length)]); }
+
+/* טיימרים למשימות */
+const timers = {}; // {id:{remain, iv, running}}
+
+function renderDaily(){
+  document.getElementById('today-badge').textContent =
+    new Date().toLocaleDateString('he-IL',{weekday:'long', day:'2-digit', month:'2-digit'});
+
+  const state = loadDailyState();
+  const todays = todaysTasks();
+
+  todays.forEach(t=>{ if(!state.items[t.id]) state.items[t.id]={status:'pending', owner:t.owner, area:t.area, ts:Date.now()}; });
+  saveDailyState(state);
+
+  const container = document.getElementById('daily-list');
+  container.innerHTML = todays.map(t=>{
+    const s = state.items[t.id].status;
+    const timer = timers[t.id]?.remain ?? (t.minutes*60);
+    const mm = String(Math.floor(timer/60)).padStart(2,'0');
+    const ss = String(timer%60).padStart(2,'0');
+    return `
+      <div class="p-4 rounded-xl border border-gray-100 flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">${t.icon}</span>
+            <h3 class="font-semibold">${t.title}</h3>
+            <span class="badge">${t.minutes} ד׳</span>
+            <span class="badge">${t.owner}</span>
+            <span class="badge">${t.area}</span>
+          </div>
+          <a class="link text-sm" target="_blank" href="${t.video}">🎥 סרטון טיפים</a>
+          <div class="mt-2 text-sm">⏱️ <b id="tm-${t.id}">${mm}:${ss}</b>
+            <button class="btn btn-ghost text-xs" data-timer="start" data-id="${t.id}">התחל</button>
+            <button class="btn btn-ghost text-xs" data-timer="pause" data-id="${t.id}">הפסק</button>
+            <button class="btn btn-ghost text-xs" data-timer="reset" data-id="${t.id}">אפס</button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button data-act="done" data-id="${t.id}" class="btn ${s==='done'?'btn-gold':'btn-ghost'}">${s==='done'?'בוצע ✅':'בוצע'}</button>
+          <button data-act="skip" data-id="${t.id}" class="btn btn-ghost">דלג ⏭️</button>
+          <button data-act="tomorrow" data-id="${t.id}" class="btn btn-ghost">דחה למחר 📅</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // פעולות סטטוס + נקודות + פרסים + מוטיבציה
+  container.querySelectorAll('button[data-act]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.id, act=btn.dataset.act;
+      const st=loadDailyState(); if(!st.items[id]) return;
+      const prev = st.items[id].status;
+
+      if(act==='done') st.items[id].status = (st.items[id].status==='done'?'pending':'done');
+      if(act==='skip') st.items[id].status = 'skipped';
+      if(act==='tomorrow') st.items[id].status = 'skipped';
+      st.items[id].ts = Date.now();
+      saveDailyState(st);
+
+      // נקודות לבנות + פרסי יעד + הודעת מוטיבציה
+      const owner = st.items[id].owner;
+      if(owner==='מפל' || owner==='מעיין'){
+        const pts = loadPoints();
+        const prevVal = owner==='מפל' ? pts.mafal : pts.maayan;
+
+        if(prev!=='done' && st.items[id].status==='done'){ // הוספת נק׳
+          if(owner==='מפל') pts.mafal += 1; else pts.maayan += 1;
+          motivate(owner);
+          checkRewards(owner, prevVal, owner==='מפל'? pts.mafal : pts.maayan);
+        }else if(prev==='done' && st.items[id].status!=='done'){ // הורדת נק׳
+          if(owner==='מפל') pts.mafal = Math.max(0, pts.mafal-1); else pts.maayan = Math.max(0, pts.maayan-1);
+        }
+        savePoints(pts);
+      }
+
+      renderDaily(); renderDashboard(); renderPointsHistory(); toast('עודכן ✅');
+    });
+  });
+
+  // טיימרים
+  container.querySelectorAll('button[data-timer]').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.id, op=b.dataset.timer;
+      const defMins = todays.find(x=>x.id===id)?.minutes || 10;
+      if(!timers[id]) timers[id]={remain:defMins*60, iv:null, running:false};
+      const lbl=document.getElementById('tm-'+id);
+      const tick=()=>{
+        if(timers[id].remain<=0){ clearInterval(timers[id].iv); timers[id].running=false; try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}; fireNotification(); toast('הטיימר הסתיים!'); return;}
+        timers[id].remain--; const r=timers[id].remain; lbl.textContent=String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0');
+      };
+      if(op==='start' && !timers[id].running){ timers[id].iv=setInterval(tick,1000); timers[id].running=true; }
+      if(op==='pause' && timers[id].running){ clearInterval(timers[id].iv); timers[id].running=false; }
+      if(op==='reset'){ clearInterval(timers[id].iv); timers[id].remain=defMins*60; timers[id].running=false; const r=timers[id].remain; lbl.textContent=String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0'); }
+    };
+  });
+}
+
+/* ===================== סופ״ש (משימה מורכבת לסטפני) ===================== */
+const weekendPool = [
+  { id:'wardrobe',  icon:'👗', title:'ארון בגדים – מדף אחד', area:'חדר ארונות', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%99%D7%93%D7%95%D7%A8+%D7%90%D7%A8%D7%95%D7%9F+%D7%91%D7%92%D7%93%D7%99%D7%9D' },
+  { id:'kitchencab',icon:'🗄️', title:'ארון מטבח – תבלינים',  area:'מטבח',       video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%90%D7%A8%D7%95%D7%9F+%D7%9E%D7%98%D7%91%D7%97' },
+  { id:'utility',   icon:'🧰', title:'חדר שירות – סל אחד',    area:'מרפסת שירות', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%97%D7%93%D7%A8+%D7%A9%D7%99%D7%A8%D7%95%D7%AA' },
+  { id:'kids-shelf',icon:'🧸', title:'מדף צעצועים – סידור',    area:'חדר משחקים',  video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%97%D7%93%D7%A8+%D7%9E%D7%A9%D7%97%D7%A7%D7%99%D7%9D' },
+];
+
+function loadWeekly(){ return JSON.parse(localStorage.getItem(STORE.weekly) || "{}"); }
+function saveWeekly(m){ localStorage.setItem(STORE.weekly, JSON.stringify(m)); }
+
+function renderWeekly(){
+  const wrap=document.getElementById('weekly-card');
+  if(!isWeekend()){ wrap.innerHTML='<p class="text-sm text-gray-500">בסופ״ש תופיע כאן משימה אחת גדולה 🙂</p>'; return; }
+  const [task]=seedPick(weekendPool,1);
+  const wk=weekKey(); const st=loadWeekly();
+  const done = st[wk]===task.id;
+  wrap.innerHTML=`
+    <div class="p-4 rounded-xl border border-gray-100 flex items-start justify-between gap-3">
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">${task.icon}</span>
+          <h3 class="font-semibold">${task.title}</h3>
+          <span class="badge">${task.area}</span>
+        </div>
+        <a class="link text-sm" target="_blank" href="${task.video}">🎬 סרטון השראה</a>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button id="btn-weekly-done" class="btn ${done?'btn-gold':'btn-ghost'}">${done?'בוצע ✅':'בוצע'}</button>
+        <button id="btn-skip-week" class="btn btn-ghost">דלג לשבוע הבא ⏭️</button>
+      </div>
+    </div>`;
+  document.getElementById('btn-weekly-done').onclick=()=>{ const m=loadWeekly(); m[wk]=done?null:task.id; saveWeekly(m); renderWeekly(); renderDashboard(); toast('עודכן ✅'); };
+  document.getElementById('btn-skip-week').onclick=()=>{ const m=loadWeekly(); m[wk]=task.id; saveWeekly(m); location.reload(); };
+}
+
+/* ===================== צ׳ק־ליסט אזורי (שלך) ===================== */
+function loadAreaCL(){ return JSON.parse(localStorage.getItem(STORE.areaCL) || "[]"); }
+function saveAreaCL(list){ localStorage.setItem(STORE.areaCL, JSON.stringify(list)); }
+
+function buildChecklistFromText(){
+  const text=document.getElementById('steps-input').value.trim();
+  const area=document.getElementById('area-select').value;
+  if(!text) return toast('אין צעדים להוסיף');
+  const list=loadAreaCL();
+  const lines=text.split('\n').map(s=>s.trim()).filter(Boolean);
+  lines.forEach((t,i)=> list.push({id:'a'+Date.now()+i, text:t, done:false, area, ts:Date.now()}));
+  saveAreaCL(list);
+  renderChecklist(true); renderDashboard(); toast('נוצר צ׳ק־ליסט ✅');
+}
+function renderChecklist(showAll=false){
+  const container=document.getElementById('checklist');
+  const data=loadAreaCL();
+  const visible=showAll?data:data.filter(x=>!x.done);
+  container.innerHTML = visible.length ? visible.map(it=>`
+    <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
+      <input type="checkbox" ${it.done?'checked':''} data-id="${it.id}" class="h-5 w-5 rounded">
+      <span class="${it.done?'line-through text-gray-400':''}">${it.text} <span class="badge">${it.area}</span></span>
+    </label>
+  `).join('') : `<p class="text-sm text-gray-500">אין פריטים להצגה.</p>`;
+  container.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const id=cb.dataset.id; const list=loadAreaCL(); const it=list.find(x=>x.id===id); if(!it) return;
+      it.done=cb.checked; it.ts=Date.now(); saveAreaCL(list); renderChecklist(showAll); renderDashboard();
+    });
+  });
+}
+document.getElementById('btn-build-checklist').onclick=buildChecklistFromText;
+document.getElementById('btn-hide-done').onclick=()=>renderChecklist(false);
+document.getElementById('btn-show-all').onclick=()=>renderChecklist(true);
+document.getElementById('btn-clear').onclick=()=>{ if(confirm('לנקות את הצ׳ק־ליסט?')){ saveAreaCL([]); renderChecklist(true); renderDashboard(); } };
+
+/* ===================== תכנית חודשית לפי אזור – UI ===================== */
+function openMonthlyArea(area){
+  const modal=document.getElementById('list-modal');
+  const title=document.getElementById('modal-title');
+  const body=document.getElementById('modal-body');
+  title.textContent="תכנית חודשית – "+area;
+  const plan=AREA_PLAN[area]||[];
+  const st=loadPlan(); const doneSet=new Set(Object.keys(st.done?.[area]||{}));
+
+  body.innerHTML = plan.length ? plan.map(it=>{
+    const checked = doneSet.has(it.id);
+    const vid = it.video? `<a class="link text-sm" target="_blank" href="${it.video}">🎥</a>` : '';
+    return `<label class="flex items-center gap-3 p-3 rounded-xl border">
+      <input type="checkbox" ${checked?'checked':''} data-area="${area}" data-id="${it.id}">
+      <span>${it.text} ${vid}</span>
+    </label>`;
+  }).join('') : '<p class="text-sm text-gray-500">אין משימות מוגדרות לאזור זה.</p>';
+
+  body.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const a=cb.dataset.area, id=cb.dataset.id;
+      const st=loadPlan(); st.done=st.done||{}; st.done[a]=st.done[a]||{};
+      if(cb.checked) st.done[a][id]=Date.now(); else delete st.done[a][id];
+      savePlan(st); renderDashboard();
+    });
+  });
+
+  modal.showModal();
+}
+document.getElementById('btn-plan-open').onclick=()=>{
+  const area=document.getElementById('plan-area-select').value;
+  openMonthlyArea(area);
+};
+
+/* ===================== דשבורד ===================== */
+function renderDashboard(){
+  // יומי
+  const st=loadDailyState();
+  const todays = todaysTasks();
+  const ids = todays.map(t=>t.id);
+  let pending=0, skipped=0, done=0;
+  ids.forEach(id=>{
+    const rec=st.items[id]; if(!rec) return;
+    if(rec.status==='pending') pending++;
+    if(rec.status==='skipped') skipped++;
+    if(rec.status==='done' && monthKey(rec.ts)===monthKey()) done++;
+  });
+  document.getElementById('stat-pending').textContent=pending;
+  document.getElementById('stat-skipped').textContent=skipped;
+  document.getElementById('stat-done').textContent=done;
+
+  // נקודות שבועיות (בנות)
+  const pts=loadPoints();
+  document.getElementById('pts-mafal').textContent=pts.mafal||0;
+  document.getElementById('pts-maayan').textContent=pts.maayan||0;
+
+  // התקדמות חודשית לפי אזור
+  const plan = loadPlan();
+  const cl = loadAreaCL();
+  const mk = monthKey();
+  const wrap=document.getElementById('areas-progress');
+
+  wrap.innerHTML = AREAS.map(a=>{
+    const planTotal = (AREA_PLAN[a]||[]).length;
+    const planDone  = Object.keys((plan.done?.[a])||{}).length;
+
+    const clMonthAll = cl.filter(x=>x.area===a && monthKey(x.ts)===mk);
+    const clMonthTotal = clMonthAll.length;
+    const clMonthDone  = clMonthAll.filter(x=>x.done).length;
+
+    const num = planDone + clMonthDone;
+    const den = planTotal + clMonthTotal;
+    const pct = den? Math.round(num*100/den) : 0;
+
+    return `
+      <button data-area="${a}" class="w-full text-left">
+        <div class="flex items-center justify-between">
+          <b>${a}</b>
+          <span class="text-sm text-gray-500">${pct}% (${num}/${den})</span>
+        </div>
+        <div class="progress-wrap mt-2"><div class="progress-bar" style="width:${pct}%"></div></div>
+      </button>`;
+  }).join('');
+
+  // פתיחת רשימות
+  document.querySelectorAll('[data-open]').forEach(btn=>{
+    btn.onclick = ()=> openList(btn.getAttribute('data-open'));
+  });
+  wrap.querySelectorAll('button[data-area]').forEach(b=>{
+    b.onclick=()=> openMonthlyArea(b.getAttribute('data-area'));
+  });
+}
+
+function openList(key){
+  const modal=document.getElementById('list-modal');
+  const title=document.getElementById('modal-title');
+  const body=document.getElementById('modal-body');
+  const st=loadDailyState();
+  const picked=todaysTasks();
+  let filt=[];
+  if(key==='pending') filt=picked.filter(t=>st.items[t.id]?.status==='pending');
+  if(key==='skipped') filt=picked.filter(t=>st.items[t.id]?.status==='skipped');
+  if(key==='done')    filt=picked.filter(t=>st.items[t.id]?.status==='done' && monthKey(st.items[t.id].ts)===monthKey());
+  if(key.startsWith('owner:')){ const who=key.split(':')[1]; filt=picked.filter(t=>st.items[t.id] && t.owner===who && st.items[t.id].status==='done' && monthKey(st.items[t.id].ts)===monthKey()); }
+  title.textContent="רשימת משימות – " + key;
+  body.innerHTML = filt.length? filt.map(t=>{
+    const s=st.items[t.id].status; const badge = s==='done'?'✅ בוצע':(s==='skipped'?'⏭️ דולג':'⏳ ממתין');
+    return `<div class="p-3 rounded-xl border"><div class="flex items-center gap-2"><span class="text-xl">${t.icon}</span><b>${t.title}</b><span class="badge">${t.owner}</span><span class="badge">${t.area}</span></div><div class="text-sm text-gray-500 mt-1">${badge}</div></div>`;
+  }).join('') : '<p class="text-sm text-gray-500">אין פריטים להצגה.</p>';
+  modal.showModal();
+}
+
+/* ===================== היסטוריית נקודות (דשבורד) ===================== */
+function renderPointsHistory(){
+  const hist = loadHistory();
+  const tbody = document.getElementById('points-history-body');
+  if(!tbody) return;
+  tbody.innerHTML = hist.length ? hist.map(row=>{
+    const medal = (row.rewards||[]).map(r=>`${r.owner}: ${r.milestone} נק׳`).join(' • ');
+    return `<tr class="border-t">
+      <td class="p-2">${row.week}</td>
+      <td class="p-2">${row.mafal}</td>
+      <td class="p-2">${row.maayan}</td>
+      <td class="p-2">${row.total}</td>
+      <td class="p-2 text-gray-600">${medal || '-'}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5" class="p-3 text-gray-500">אין עדיין היסטוריה. כשיתחלף השבוע – זה יתמלא אוטומטית.</td></tr>`;
+}
+
+/* ===================== התראות ===================== */
+function updateNotifyUI(){
+  const on = JSON.parse(localStorage.getItem(STORE.notify)||"false");
+  document.getElementById('notify-status').textContent = on? "התזכורת פעילה":"התזכורת כבויה";
+  document.getElementById('btn-notify-toggle').textContent = on? "כבה תזכורת":"הפעל תזכורת";
+}
+async function enableNotifications(){
+  if(!("Notification" in window)){ toast("הדפדפן לא תומך בהתראות"); return; }
+  let p=Notification.permission; if(p==="default") p=await Notification.requestPermission();
+  if(p!=="granted"){ toast("צריך לאשר קבלת התראות בדפדפן"); return; }
+  localStorage.setItem(STORE.notify,"true"); scheduleDailyNotification(); updateNotifyUI(); toast("תזכורת הופעלה");
+}
+function disableNotifications(){ localStorage.setItem(STORE.notify,"false"); clearExistingTimers(); updateNotifyUI(); toast("תזכורת כובתה"); }
+let notifyTimer=null;
+function clearExistingTimers(){ if(notifyTimer) clearTimeout(notifyTimer); notifyTimer=null; }
+function scheduleDailyNotification(){
+  clearExistingTimers();
+  const on = JSON.parse(localStorage.getItem(STORE.notify)||"false"); if(!on) return;
+  const now=new Date(); const start=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0); const end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),22,0,0);
+  let ms=start-now; if(ms<0){ ms=end-now; if(ms<0) ms=start.getTime()+86400000-now.getTime(); }
+  notifyTimer=setTimeout(()=>{ fireNotification(); scheduleDailyNotification(); }, ms);
+}
+function fireNotification(){
+  try{ if("Notification" in window && Notification.permission==="granted"){ new Notification("זמן לניקיון! 🏠",{body:"הגיע הזמן למשימות הבית שלך"}); } }catch(e){}
+  toast("זמן לניקיון! 🧽");
+}
+document.getElementById('btn-notify-toggle').onclick=()=>{ JSON.parse(localStorage.getItem(STORE.notify)||"false")? disableNotifications(): enableNotifications(); };
+document.getElementById('btn-notify-test').onclick=async ()=>{ if(!("Notification" in window)){ toast("אין תמיכה – תוצג התראה פנימית"); } if(Notification.permission!=="granted"){ await Notification.requestPermission(); } fireNotification(); };
+
+/* ===================== ניווט + PWA ===================== */
+function route(){
+  const hash=location.hash||"#/home";
+  document.getElementById('view-home').classList.toggle('hidden', hash!=="#/home");
+  document.getElementById('view-dashboard').classList.toggle('hidden', hash!=="#/dashboard");
+  document.getElementById('nav-home').classList.toggle('nav-act', hash==="#/home");
+  document.getElementById('nav-dash').classList.toggle('nav-act', hash==="#/dashboard");
+  if(hash==="#/dashboard"){ renderDashboard(); renderPointsHistory(); }
+}
+window.addEventListener('hashchange', route);
+
+// PWA: רישום SW + install prompt
+let deferredPrompt=null;
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('service-worker.js'); });
+}
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault(); deferredPrompt=e;
+  const btn=document.getElementById('btn-install'); btn.classList.remove('hidden');
+  btn.onclick= async ()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt=null; btn.classList.add('hidden');
+  };
+});
+
+/* ===================== Toast ===================== */
+function toast(msg){ const el=document.createElement('div'); el.className='toast'; el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(),2600); }
+
+/* ===================== Init ===================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  ensureWeekRollover(); // גלגול שבוע -> היסטוריה
+  route();
+  renderDaily(); renderWeekly(); renderChecklist(true); renderDashboard();
+  renderPointsHistory();
+  updateNotifyUI(); if(JSON.parse(localStorage.getItem(STORE.notify)||"false")) scheduleDailyNotification();
+});
+</script>
+</body>
+</html>
