@@ -1,471 +1,289 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ארגון וסדר – סטפני</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ארגון וסדר – הבית שלי</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    body{font-family:"Heebo",sans-serif}
-    .card{background:#fff;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.08)}
-    .pill{background:#f1f5f9;border-radius:999px;padding:.25rem .6rem;font-size:.8rem}
-    .done{opacity:.6;text-decoration:line-through}
-    .btn{border-radius:10px;padding:.55rem .9rem}
-    .btn-ghost{background:#f8fafc}
-    .check-item{display:flex;gap:.5rem;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.6rem .75rem;margin:.35rem 0}
-    .tiny{font-size:.82rem;color:#64748b}
-    a.link{color:#7c3aed;text-decoration:underline}
+    body{font-family:'Heebo',sans-serif;background:linear-gradient(180deg,#fff7ff,#f7f2ff);}
+    .card{background:#fff;border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.08);}
+    .badge{font-size:.8rem;background:#f1e8ff;color:#6b21a8;border-radius:999px;padding:.25rem .6rem}
+    .btn{border-radius:12px;padding:.6rem 1rem}
+    .btn-ghost{background:#f6f6fb}
+    .tiny{font-size:.9rem;color:#6b7280}
+    .link{color:#6d28d9;text-decoration:underline}
   </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen">
-  <div class="max-w-5xl mx-auto p-5 md:p-10">
-    <header class="text-center mb-6">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-800">🏠 ארגון וסדר</h1>
-      <p class="text-gray-600">יומי + בנות + מורכבות סופ״ש + תכנית ממוקדת</p>
-    </header>
+<body class="min-h-screen">
+  <header class="max-w-3xl mx-auto px-4 pt-6">
+    <h1 class="text-3xl font-bold text-gray-800">🏠 ארגון וסדר</h1>
+    <p class="tiny mt-1">משימות קצרות לימים עמוסים + משימה גדולה לסופ״ש. נשמר אוטומטית.</p>
+  </header>
 
-    <!-- סטטוס -->
-    <section class="card p-5 mb-6">
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="bg-green-50 rounded-lg p-3">
-          <div id="stat-done" class="text-2xl font-bold text-green-600">0</div>
-          <div class="text-sm text-green-700">הושלמו היום</div>
+  <main class="max-w-3xl mx-auto px-4 pb-24 space-y-6">
+
+    <!-- התראות -->
+    <section class="card p-5">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">🔔 תזכורת יומית</h2>
+          <p class="tiny">התראה בין 21:00–22:00 להזכיר לסיים משימות. נשמר במכשיר.</p>
         </div>
-        <div class="bg-blue-50 rounded-lg p-3">
-          <div id="stat-active" class="text-2xl font-bold text-blue-600">0</div>
-          <div class="text-sm text-blue-700">פעילים עכשיו</div>
-        </div>
-        <div class="bg-purple-50 rounded-lg p-3">
-          <div id="stat-total" class="text-2xl font-bold text-purple-600">0</div>
-          <div class="text-sm text-purple-700">סה״כ היום</div>
+        <div class="flex gap-2">
+          <button id="btn-notify-toggle" class="btn btn-ghost">הפעל תזכורת</button>
+          <button id="btn-notify-test" class="btn bg-purple-600 text-white hover:bg-purple-700">בדיקת תזכורת</button>
         </div>
       </div>
+      <p id="notify-status" class="tiny mt-2"></p>
     </section>
 
     <!-- משימות יומיות -->
-    <section class="mb-6">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xl font-semibold text-gray-800">המשימות שלי היום</h2>
-        <button id="btn-new" class="btn bg-blue-600 text-white hover:bg-blue-700">🔄 משימות חדשות</button>
-      </div>
-      <div id="mine" class="grid md:grid-cols-2 gap-4"></div>
-    </section>
-
-    <!-- בנות -->
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">👧 משימות לבנות</h2>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="card p-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold">מפל (10)</h3>
-            <span class="pill">קליל</span>
-          </div>
-          <div id="kids-mafal" class="mt-2"></div>
-        </div>
-        <div class="card p-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold">מעיין (8)</h3>
-            <span class="pill">קליל</span>
-          </div>
-          <div id="kids-maayan" class="mt-2"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- סופ״ש מורכב -->
-    <section class="mb-6 card p-5">
+    <section class="card p-5">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-gray-800">🟣 משימות מורכבות לסופ״ש</h2>
-        <span id="weekend-note" class="tiny"></span>
+        <h2 class="text-xl font-bold text-gray-800">🎯 פוקוס יומי – 3 משימות קלות</h2>
+        <span id="today-badge" class="badge"></span>
       </div>
-      <div id="weekend" class="mt-2"></div>
+      <div id="daily-list" class="mt-4 grid gap-3"></div>
+      <p class="tiny mt-3">טיפ: 10 דק׳ לכל משימה. אפשר לשתף עם מפל (10) ומעיין (8) 😇</p>
     </section>
 
-    <!-- תכנית ממוקדת -->
-    <section class="mb-8 card p-5">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">🧭 תכנית ממוקדת לאזור</h2>
-      <textarea id="focus-input" rows="5" class="w-full p-3 border rounded-lg mb-3" placeholder="הדביקי כאן צעדים — כל שורה צעד"></textarea>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button id="btn-make" class="btn bg-purple-600 text-white hover:bg-purple-700">✅ צור/עדכן צ׳ק-ליסט</button>
-        <button id="btn-hide-done" class="btn btn-ghost">🧹 הסתר שהושלמו</button>
-        <button id="btn-show-all" class="btn btn-ghost">👀 הצג הכול</button>
-        <button id="btn-clear" class="btn btn-ghost">🗑️ נקה צ׳ק-ליסט</button>
+    <!-- מורכבות לסופ"ש -->
+    <section class="card p-5">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">🧱 מורכבות לסופ״ש</h2>
+        <span class="badge">30–60 ד׳</span>
       </div>
-      <div id="focus-list"></div>
-      <p class="tiny mt-2">טיפ: שתפי כאן צילום אזור ואני אכין לך תכנית מודבקת מוכנה עם צעדים.</p>
+      <p class="tiny mt-1">בימי שישי–שבת תופיע כאן משימה אחת מסדרות הארגון.</p>
+      <div id="weekly-card" class="mt-4"></div>
     </section>
 
-    <footer class="text-center text-sm text-gray-500 pb-10">
-      נשמר אוטומטית במכשיר (localStorage). לכל אחת הדפדוף שלה 💾
+    <!-- תכנית ממוקדת לאזור (הדבקה → צ'ק־ליסט) -->
+    <section class="card p-5" id="area-plan">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">📌 תכנית ממוקדת לאזור</h2>
+        <button id="btn-show-all" class="btn btn-ghost text-sm">הצג הכול 👀</button>
+      </div>
+      <p class="tiny mt-1">הדביקי כאן צעדים – כל שורה הופכת לסעיף:</p>
+      <textarea id="steps-input" rows="5" class="w-full mt-3 rounded-xl border border-gray-200 p-3 focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="1. לאסוף נעליים&#10;2. לרוקן את השולחן&#10;3. למיין כביסה&#10;..."></textarea>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button id="btn-build-checklist" class="btn bg-purple-600 text-white hover:bg-purple-700">צור/עדכן צ׳ק־ליסט ✅</button>
+        <button id="btn-hide-done" class="btn btn-ghost">הסתר שהושלם 🧹</button>
+        <button id="btn-clear" class="btn btn-ghost">נקה צ׳ק־ליסט 🗑️</button>
+      </div>
+      <div id="checklist" class="mt-4 space-y-2"></div>
+      <p class="tiny mt-3">טיפ: שלחי לי תמונות של אזור מסוים ואני אייצר לך כאן תכנית מדוייקת עם צעדים קטנים.</p>
+    </section>
+
+    <footer class="text-center tiny text-gray-500">
+      נבנה ביחד עם סטפני 💜 – נשמר מקומית בדפדפן.
     </footer>
-  </div>
+  </main>
 
   <script>
-    /* ===================== נתונים ===================== */
-    const YT = {
-      kitchen: "https://youtu.be/3Xnu3MpnV-g",
-      konmari: "https://youtu.be/-2gHqY7cA6Y",
-      living: "https://youtu.be/_h1Q3BfEzyI",
-      entry: "https://youtu.be/1oYw4yQ8u7A",
-      toys: "https://youtu.be/WYyPjW7OVoA",
-      wardrobe: "https://youtu.be/6m1r1N2A8YQ",
-      bathroom: "https://youtu.be/5HqgYQqS9Ow",
-      laundry: "https://youtu.be/k5yJw0oM8vE"
-    };
+  /* ========== נתוני משימות (עם קישורי וידאו לפי נושא) ========== */
+  const dailyTasks = [
+    { id:'sofa', icon:'🛋️', title:'ספה – איסוף ומיון', time:'10 ד׳', tip:'להוריד הכול מהספה, למיין נקי/מלוכלך', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A1%D7%9C%D7%95%D7%9F+%D7%A0%D7%99%D7%A7%D7%99%D7%95%D7%9F+%D7%A1%D7%A4%D7%94' },
+    { id:'coffee', icon:'☕', title:'שולחן סלון – פינוי מלא', time:'10 ד׳', tip:'לפנות לגמרי ולנגב עם מגבון', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A1%D7%9C%D7%95%D7%9F' },
+    { id:'shoes', icon:'👟', title:'נעליים בכניסה', time:'5 ד׳', tip:'לאסוף להחזיר לארון/סל', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%A0%D7%A2%D7%9C%D7%99%D7%99%D7%9D' },
+    { id:'trash', icon:'🗑️', title:'מיני-אשפה מהירה', time:'5 ד׳', tip:'לסיבוב מהיר עם שקית, רק זבל גלוי', video:'https://www.youtube.com/results?search_query=%D7%98%D7%99%D7%A4%D7%99%D7%9D+%D7%9C%D7%A0%D7%99%D7%A7%D7%99%D7%95%D7%9F+%D7%9E%D7%94%D7%99%D7%A8' },
+    { id:'surfaces', icon:'🧽', title:'משטחי מטבח – ניגוב', time:'10 ד׳', tip:'לפנות 3 פריטים, לנגב, להחזיר מסודר', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%9E%D7%98%D7%91%D7%97+%D7%9E%D7%94%D7%99%D7%A8' },
+    { id:'desk', icon:'💻', title:'שולחן עבודה – 10 פריטים', time:'10 ד׳', tip:'לסדר/לזרוק 10 פריטים בלבד', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A2%D7%91%D7%95%D7%93%D7%94' },
+    { id:'bath-sink', icon:'🚿', title:'כיור אמבטיה', time:'5 ד׳', tip:'שטיפה/מגב מהירה', video:'https://www.youtube.com/results?search_query=%D7%A0%D7%99%D7%A7%D7%95%D7%99+%D7%9B%D7%99%D7%95%D7%A8+%D7%90%D7%9E%D7%91%D7%98%D7%99%D7%94' },
+    { id:'laundry', icon:'🧺', title:'כביסה – סבב אחד', time:'5 ד׳ הוצאה', tip:'להכניס/להוציא סבב אחד בלבד', video:'https://www.youtube.com/results?search_query=%D7%9E%D7%99%D7%95%D7%9F+%D7%9B%D7%91%D7%99%D7%A1%D7%94+%D7%9E%D7%94%D7%99%D7%A8' },
+  ];
 
-    const MASTER = [
-      { id:"sink",     title:"שטיפת כלים בסיסית + כיור", time:"10–15 ד׳", tip:"להתחיל מדברים גדולים → משרים → קטנים", video:YT.kitchen },
-      { id:"counters", title:"ניקוי משטח מטבח",          time:"8–10 ד׳",  tip:"שמאל→ימין סיבוב אחד, בלי לפתוח ארונות", video:YT.kitchen },
-      { id:"living",   title:"סידור סלון נראה לעין",      time:"7–10 ד׳",  tip:"קופסת איסוף אחת, לא מחליטות עכשיו", video:YT.living },
-      { id:"entry",    title:"כניסה: נעליים + מעילים",    time:"5–8 ד׳",   tip:"זוג אחד לאדם ליד הדלת, השאר לארון", video:YT.entry },
-      { id:"bath",     title:"ניגוב מהיר אמבטיה",         time:"8–12 ד׳",  tip:"ברז/כיור/אסלה – מעגל אחד", video:YT.bathroom },
-      { id:"desk",     title:"שולחן עבודה נקי לעין",      time:"5–8 ד׳",   tip:"לשים הכול לקופסת 'תלוי החלטה'", video:YT.konmari }
-    ];
+  const weekendTasks = [
+    { id:'wardrobe', icon:'👗', title:'סידור ארון בגדים – מדף אחד', tip:'רק מדף/מגירה אחת. מיון: לשמור / לתרום / לזרוק', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%99%D7%93%D7%95%D7%A8+%D7%90%D7%A8%D7%95%D7%9F+%D7%91%D7%92%D7%93%D7%99%D7%9D' },
+    { id:'kitchen-cab', icon:'🗄️', title:'ארון מטבח – מדף תבלינים', tip:'להוציא הכול, לנגב, להחזיר לפי קטגוריות', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%90%D7%A8%D7%95%D7%9F+%D7%9E%D7%98%D7%91%D7%97' },
+    { id:'utility', icon:'🧰', title:'חדר שירות – סל אחסון אחד', tip:'לבחור סל/פינה אחת ולסדר עד סיום', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%97%D7%93%D7%A8+%D7%A9%D7%99%D7%A8%D7%95%D7%AA' },
+    { id:'kids-room', icon:'🧸', title:'חדר משחקים – מדף צעצועים', tip:'קופסה לצעצועים חסרים, קופסה לתרומה', video:'https://www.youtube.com/results?search_query=%D7%90%D7%A8%D7%92%D7%95%D7%9F+%D7%97%D7%93%D7%A8+%D7%9E%D7%A9%D7%97%D7%A7%D7%99%D7%9D' },
+    { id:'parents-shelves', icon:'🛏️', title:'חדר הורים – שידות ומדף אחד', tip:'לסיים מדף/שידה עד נקי ומסודר', video:'https://www.youtube.com/results?search_query=%D7%A1%D7%93%D7%A8+%D7%97%D7%93%D7%A8+%D7%A9%D7%99%D7%A0%D7%94' },
+  ];
 
-    // לילדות – קלות
-    const KIDS = {
-      mafal: [
-        {id:"m1", title:"📚 להכין תיק למחר", time:"5 ד׳", tip:"רשימת שיעורים על השולחן", video:YT.living},
-        {id:"m2", title:"🧦 להביא כביסה לסל", time:"3 ד׳", tip:"סיבוב מהיר חדר→סל כביסה", video:YT.laundry},
-        {id:"m3", title:"🧸 לסדר 10 צעצועים", time:"5 ד׳", tip:"טיימר 5 ד׳ – עושים משחק!", video:YT.toys},
-        {id:"m4", title:"🍽️ לעזור לערוך שולחן", time:"5 ד׳", tip:"מפיות/סכו״ם בלבד", video:YT.kitchen}
-      ],
-      maayan: [
-        {id:"y1", title:"🧸 לסדר 10 צעצועים", time:"5 ד׳", tip:"טיימר 5 ד׳ – עושים משחק!", video:YT.toys},
-        {id:"y2", title:"🧦 להביא כביסה לסל", time:"3 ד׳", tip:"תחרות מי אוספת יותר", video:YT.laundry},
-        {id:"y3", title:"🥤 לאסוף בקבוקים/כוסות בסלון", time:"4 ד׳", tip:"טריי/מגש אחד", video:YT.living},
-        {id:"y4", title:"🥿 לסדר נעליים בכניסה", time:"4 ד׳", tip:"זוג אחד על המדף", video:YT.entry}
-      ]
-    };
-
-    // אזורי סופ״ש לפי שבוע
-    const WEEKEND = [
-      {key:"kitchen", label:"🍳 סידור ארונות מטבח (מדף אחד מלא)", video:YT.kitchen, tip:"מדף אחד בלבד! לרוקן→למיין→להחזיר"},
-      {key:"laundry", label:"🧺 ארגון חדר שירות", video:YT.laundry, tip:"סל כביסה/חומרי ניקוי – קופסאות"},
-      {key:"wardrobe",label:"👗 ארון בגדים גדול – מדף אחד", video:YT.wardrobe, tip:"בגדי בית / יציאה / תרומה"},
-      {key:"parents", label:"🛏️ חדר שינה הורים – שוליות", video:YT.living, tip:"שידות ומדף אחד"},
-      {key:"playroom",label:"🎮 חדר משחקים – קופסה אחת", video:YT.toys, tip:"לפי קטגוריה אחת"},
-      {key:"bathroom",label:"🚿 אמבטיה – מדף/מגירה", video:YT.bathroom, tip:"תוקף מוצרים"}
-    ];
-
-    /* ===================== שמירה ===================== */
-    const KEY = "steph-org";
-    const todayStr = new Date().toDateString();
-
-    function loadState(){
-      let s = JSON.parse(localStorage.getItem(KEY) || "{}");
-      if(!s.date){ s = { date: todayStr, mine:[], kids:{mafal:[],maayan:[]}, weekend:{}, focus:{items:[],hideDone:false}, carry:{} }; }
-      // יום חדש → מעבירים לא גמורים ל-carry ומגרילים חדשים
-      if(s.date !== todayStr){
-        s.carry = {
-          mine: (s.mine||[]).filter(x=>!x.done).map(x=>({id:x.id,source:"MASTER"})),
-          mafal:(s.kids?.mafal||[]).filter(x=>!x.done).map(x=>({id:x.id,owner:"mafal"})),
-          maayan:(s.kids?.maayan||[]).filter(x=>!x.done).map(x=>({id:x.id,owner:"maayan"}))
-        };
-        s.mine = []; s.kids={mafal:[],maayan:[]};
-        s.date = todayStr;
-      }
-      return s;
+  /* ========== עזר: בחירה יציבה לפי תאריך ========== */
+  function seedPick(arr, count){
+    const d = new Date(); const seed = d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+    const out = []; let s = seed;
+    const used = new Set();
+    while(out.length<count && used.size<arr.length){
+      s = (s * 1664525 + 1013904223) % 4294967296;
+      const idx = s % arr.length;
+      if(!used.has(idx)){ used.add(idx); out.push(arr[idx]); }
     }
-    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); updateStats(); }
+    return out;
+  }
 
-    let state = loadState();
-
-    /* ===================== עזר ===================== */
-    const byId = id => MASTER.find(t=>t.id===id) || {};
-    const randPick = (arr, n) => [...arr].sort(()=>0.5-Math.random()).slice(0,n);
-    function isWeekend(){ const d=new Date().getDay(); return (d===5||d===6); } // שישי/שבת
-    function weekIndex(){ return Math.floor(Date.now()/(7*24*60*60*1000)) % WEEKEND.length; }
-
-    /* ===================== יצירת יום ===================== */
-    function ensureTodayTasks(){
-      // שלי – 2 רנדומליות + carry
-      if(state.mine.length===0){
-        const carry = (state.carry?.mine||[]).map(c=>MASTER.find(m=>m.id===c.id)).filter(Boolean);
-        const pool = MASTER.filter(t=>!carry.some(c=>c.id===t.id));
-        const fresh = randPick(pool, Math.max(0,2-carry.length));
-        state.mine = [...carry, ...fresh].map(t=>({ ...t, done:false }));
-      }
-      // בנות – 1 לכל אחת + carry
-      for(const who of ["mafal","maayan"]){
-        if(state.kids[who].length===0){
-          const src = KIDS[who];
-          const carry = (state.carry?.[who]||[]).map(c=>src.find(x=>x.id===c.id)).filter(Boolean);
-          const pool = src.filter(t=>!carry.some(c=>c.id===t.id));
-          const fresh = randPick(pool, Math.max(0,1-carry.length));
-          state.kids[who] = [...carry, ...fresh].map(t=>({ ...t, done:false }));
-        }
-      }
-      saveState();
-    }
-
-    /* ===================== רנדר ===================== */
-    function taskHTML(t, group, idx){
-      const done = t.done ? "done" : "";
-      return `
-        <div class="card p-4 ${done}">
-          <div class="flex items-center justify-between mb-1">
-            <h4 class="font-semibold">${t.title}</h4>
-            <span class="pill">${t.time||""}</span>
+  /* ========== משימות יומיות ========== */
+  const DAILY_DONE_KEY = "daily_done_v1";
+  function renderDaily(){
+    document.getElementById('today-badge').textContent = new Date().toLocaleDateString('he-IL', {weekday:'long', day:'2-digit', month:'2-digit'});
+    const container = document.getElementById('daily-list');
+    const pick = seedPick(dailyTasks, 3);
+    const done = JSON.parse(localStorage.getItem(DAILY_DONE_KEY) || "{}");
+    container.innerHTML = pick.map(t => `
+      <div class="p-4 rounded-xl border border-gray-100 flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">${t.icon}</span>
+            <h3 class="font-semibold text-gray-800">${t.title}</h3>
+            <span class="badge">${t.time}</span>
           </div>
-          <p class="tiny mb-2">🧭 טיפ: ${t.tip||""}</p>
-          ${t.video?`<a class="link tiny" target="_blank" href="${t.video}">🎬 סרטון מומלץ</a>`:""}
-          <div class="mt-3 flex gap-2">
-            <button class="btn btn-ghost" onclick="toggleDone('${group}',${idx})">✅ בוצע</button>
-            <button class="btn btn-ghost" onclick="skipTask('${group}',${idx})">⏭️ דלג</button>
-            <button class="btn btn-ghost" onclick="removeTask('${group}',${idx})">🗑️ מחק</button>
-          </div>
+          <p class="tiny mt-1">${t.tip}</p>
+          <a class="link tiny" target="_blank" href="${t.video}">🎥 סרטון טיפים בנושא</a>
         </div>
-      `;
-    }
+        <button data-id="${t.id}" class="btn ${done[t.id]?'bg-green-600 text-white':'btn-ghost'} toggle-done">
+          ${done[t.id]?'בוצע ✅':'סמן בוצע'}
+        </button>
+      </div>
+    `).join('');
+    container.querySelectorAll('.toggle-done').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const id = btn.getAttribute('data-id');
+        const map = JSON.parse(localStorage.getItem(DAILY_DONE_KEY) || "{}");
+        map[id] = !map[id];
+        localStorage.setItem(DAILY_DONE_KEY, JSON.stringify(map));
+        renderDaily();
+      });
+    });
+  }
 
-    function renderAll(){
-      // שלי
-      document.getElementById("mine").innerHTML = state.mine.map((t,i)=>taskHTML(t,"mine",i)).join("") || `<div class="card p-4">הכול נקי! 🎉</div>`;
-      // בנות
-      document.getElementById("kids-mafal").innerHTML = state.kids.mafal.map((t,i)=>taskHTML(t,"mafal",i)).join("") || `<div class="tiny">אין כרגע</div>`;
-      document.getElementById("kids-maayan").innerHTML = state.kids.maayan.map((t,i)=>taskHTML(t,"maayan",i)).join("") || `<div class="tiny">אין כרגע</div>`;
-      // סופ״ש
-      const wWrap = document.getElementById("weekend");
-      const note = document.getElementById("weekend-note");
-      if(isWeekend()){
-        const idx = weekIndex();
-        const area = WEEKEND[idx];
-        note.textContent = `שבוע ${idx+1}/${WEEKEND.length} – סבב מתקדם אוטומטית כשמסמנים בוצע`;
-        const done = state.weekend?.done || false;
-        wWrap.innerHTML = `
-          <div class="card p-4 ${done?'done':''}">
-            <div class="flex items-center justify-between mb-1">
-              <h4 class="font-semibold">${area.label}</h4>
-              <span class="pill">30–60 ד׳</span>
-            </div>
-            <p class="tiny mb-2">🧭 טיפ: ${area.tip}</p>
-            <a class="link tiny" target="_blank" href="${area.video}">🎬 סרטון עומק</a>
-            <div class="mt-3 flex gap-2">
-              <button class="btn btn-ghost" onclick="toggleWeekend()">✅ בוצע</button>
-              <button class="btn btn-ghost" onclick="skipWeekend()">⏭️ דלג לשבוע הבא</button>
-            </div>
+  /* ========== מורכבות לסופ"ש ========== */
+  const WEEKLY_DONE_KEY = "weekly_done_v1";
+  function renderWeekly(){
+    const day = new Date().getDay(); // 5=Fri, 6=Sat
+    const wrap = document.getElementById('weekly-card');
+    if(day!==5 && day!==6){
+      wrap.innerHTML = `<p class="tiny">כשתגיעי לסופ״ש, תופיע כאן משימה אחת גדולה 🙂</p>`;
+      return;
+    }
+    const [task] = seedPick(weekendTasks,1);
+    const done = JSON.parse(localStorage.getItem(WEEKLY_DONE_KEY) || "{}");
+    wrap.innerHTML = `
+      <div class="p-4 rounded-xl border border-gray-100 flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">${task.icon}</span>
+            <h3 class="font-semibold text-gray-800">${task.title}</h3>
           </div>
-        `;
-      } else {
-        note.textContent = "מופיע אוטומטית רק בשישי–שבת";
-        wWrap.innerHTML = `<div class="tiny">המתיני לסופ״ש 😊</div>`;
-      }
-      updateStats();
-      renderFocus();
-    }
-
-    function updateStats(){
-      const all = [...state.mine, ...state.kids.mafal, ...state.kids.maayan];
-      const done = all.filter(x=>x.done).length + (state.weekend?.done?1:0);
-      const active = all.filter(x=>!x.done).length + (isWeekend() && !state.weekend?.done ? 1 : 0);
-      const total = all.length + (isWeekend()?1:0);
-      document.getElementById("stat-done").textContent = done;
-      document.getElementById("stat-active").textContent = active;
-      document.getElementById("stat-total").textContent = total;
-    }
-
-    /* ===== פעולות משימה ===== */
-    function toggleDone(group, idx){
-      const ref = group==="mine"?state.mine:state.kids[group];
-      ref[idx].done = !ref[idx].done;
-      saveState(); renderAll();
-    }
-    function skipTask(group, idx){
-      const ref = group==="mine"?state.mine:state.kids[group];
-      const [t] = ref.splice(idx,1);
-      ref.push(t); // מעביר לסוף
-      saveState(); renderAll();
-    }
-    function removeTask(group, idx){
-      const ref = group==="mine"?state.mine:state.kids[group];
-      ref.splice(idx,1);
-      saveState(); renderAll();
-    }
-
-    /* ===== סופ״ש ===== */
-    function toggleWeekend(){ state.weekend = {done: !(state.weekend?.done)}; saveState(); renderAll(); }
-    function skipWeekend(){ // מתקדם שבוע קדימה על ידי כתיבה של "דילגנו" עם חותמת שבוע
-      state.weekend = {done:false, skippedAt: Date.now()};
-      // לא באמת צריך לשנות אינדקס – הוא מחושב לפי שבוע נוכחי. הדילוג רק לשקט נפשי.
-      saveState(); renderAll();
-    }
-
-    /* ===== פוקוס צ'ק-ליסט ===== */
-    function renderFocus(){
-      const wrap = document.getElementById("focus-list");
-      const items = state.focus.items || [];
-      const hide = state.focus.hideDone;
-      wrap.innerHTML = items.filter(i => !(hide && i.done)).map((it,idx)=>`
-        <div class="check-item ${it.done?'done':''}">
-          <div class="flex-1">
-            <div>${it.text}</div>
-            ${it.video?`<a class="link tiny" target="_blank" href="${it.video}">🎬 סרטון</a>`:""}
-          </div>
-          <div class="flex gap-1">
-            <button class="btn btn-ghost" title="בוצע" onclick="focusDone(${idx})">✅</button>
-            <button class="btn btn-ghost" title="בטל" onclick="focusUndo(${idx})">↩️</button>
-            <button class="btn btn-ghost" title="דלג" onclick="focusSkip(${idx})">⏭️</button>
-            <button class="btn btn-ghost" title="מחק" onclick="focusRemove(${idx})">🗑️</button>
-          </div>
+          <p class="tiny mt-1">טיפ: ${task.tip}</p>
+          <a class="link tiny" target="_blank" href="${task.video}">🎬 סרטון השראה/שיטה</a>
         </div>
-      `).join("") || `<div class="tiny">עדיין אין צעדים. הדביקי טקסט ולחצי “צור/עדכן צ׳ק-ליסט”.</div>`;
-      document.getElementById("btn-hide-done").classList.toggle("bg-slate-200", hide);
-    }
+        <div class="flex flex-col gap-2">
+          <button id="btn-weekly-done" class="btn ${done[task.id]?'bg-green-600 text-white':'btn-ghost'}">${done[task.id]?'בוצע ✅':'בוצע'}</button>
+          <button id="btn-skip-week" class="btn btn-ghost">דלג לשבוע הבא ⏭️</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('btn-weekly-done').onclick=()=>{
+      const map = JSON.parse(localStorage.getItem(WEEKLY_DONE_KEY) || "{}");
+      map[task.id]=!map[task.id]; localStorage.setItem(WEEKLY_DONE_KEY,JSON.stringify(map)); renderWeekly();
+    };
+    document.getElementById('btn-skip-week').onclick=()=>{
+      // מסמן כאילו בוצע כדי להחליף בשבוע הבא
+      const map = JSON.parse(localStorage.getItem(WEEKLY_DONE_KEY) || "{}");
+      map[task.id]=true; localStorage.setItem(WEEKLY_DONE_KEY,JSON.stringify(map));
+      location.reload();
+    };
+  }
 
-    function parseFocus(text){
-      // מזהה שורות עם " - " או תבליטים; מחלץ גם לינקים ל-YouTube אם יש
-      return text.split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{
-        const m = l.match(/https?:\/\/\S+/);
-        return { text: l.replace(m?.[0]||"","").trim(), video: m?.[0]||"", done:false };
+  /* ========== תכנית ממוקדת לאזור – צ׳ק־ליסט ========== */
+  const AREA_KEY = "area_checklist_v2";
+  function buildChecklistFromText(){
+    const text = document.getElementById('steps-input').value;
+    const items = text.split('\n')
+      .map(s=>s.trim()).filter(Boolean)
+      .map((t,idx)=>({ id:'i'+idx, text:t, done:false }));
+    localStorage.setItem(AREA_KEY, JSON.stringify(items));
+    renderChecklist();
+  }
+  function renderChecklist(showAll=false){
+    const container = document.getElementById('checklist');
+    const data = JSON.parse(localStorage.getItem(AREA_KEY) || "[]");
+    const visible = showAll ? data : data.filter(x=>!x.done);
+    container.innerHTML = visible.length ? visible.map(it=>`
+      <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
+        <input type="checkbox" ${it.done?'checked':''} data-id="${it.id}" class="h-5 w-5 rounded">
+        <span class="${it.done?'line-through text-gray-400':''}">${it.text}</span>
+      </label>
+    `).join('') : `<p class="tiny">עדיין אין צעדים. הדביקי טקסט ולחצי “צור/עדכן צ׳ק־ליסט”.</p>`;
+    container.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change',()=>{
+        const id = cb.getAttribute('data-id');
+        const list = JSON.parse(localStorage.getItem(AREA_KEY) || "[]");
+        const it = list.find(x=>x.id===id);
+        if(it){ it.done = cb.checked; localStorage.setItem(AREA_KEY, JSON.stringify(list)); renderChecklist(showAll); }
       });
+    });
+  }
+  document.getElementById('btn-build-checklist').onclick = buildChecklistFromText;
+  document.getElementById('btn-hide-done').onclick = ()=> renderChecklist(false);
+  document.getElementById('btn-show-all').onclick = ()=> renderChecklist(true);
+  document.getElementById('btn-clear').onclick = ()=>{
+    if(confirm('לנקות את הצ׳ק־ליסט?')){ localStorage.removeItem(AREA_KEY); renderChecklist(true); }
+  };
+
+  /* ========== התראות יומיות (מתוקן) ========== */
+  const NOTIFY_KEY = "daily_notify";
+  function updateNotifyUI() {
+    const statusEl = document.getElementById("notify-status");
+    const isOn = JSON.parse(localStorage.getItem(NOTIFY_KEY) || "false");
+    if (statusEl) statusEl.textContent = isOn ? "התזכורת פעילה" : "התזכורת כבויה";
+    const btn = document.getElementById("btn-notify-toggle");
+    if (btn) btn.textContent = isOn ? "כבה תזכורת" : "הפעל תזכורת";
+  }
+  async function enableNotifications() {
+    if (!("Notification" in window)) { alert("הדפדפן לא תומך בהתראות"); return; }
+    let perm = Notification.permission;
+    if (perm === "default") perm = await Notification.requestPermission();
+    if (perm !== "granted") { alert("צריך לאשר קבלת התראות בדפדפן"); return; }
+    localStorage.setItem(NOTIFY_KEY, "true");
+    scheduleDailyNotification();
+    updateNotifyUI();
+  }
+  function disableNotifications() {
+    localStorage.setItem(NOTIFY_KEY, "false");
+    clearExistingTimers(); updateNotifyUI();
+  }
+  let notifyTimerId = null;
+  function clearExistingTimers(){ if (notifyTimerId) clearTimeout(notifyTimerId); notifyTimerId=null; }
+  function scheduleDailyNotification(){
+    clearExistingTimers();
+    const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false"); if(!on) return;
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0);
+    const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0, 0);
+    let msUntil = start - now;
+    if (msUntil < 0) {
+      msUntil = end - now;
+      if (msUntil < 0) msUntil = start.getTime()+24*60*60*1000 - now.getTime(); // למחר
     }
+    notifyTimerId = setTimeout(()=>{ fireNotification(); scheduleDailyNotification(); }, msUntil);
+  }
+  function fireNotification(){
+    try{
+      if("Notification" in window && Notification.permission==="granted"){
+        new Notification("זמן לניקיון! 🏠",{ body:"הגיע הזמן למשימות הבית שלך" });
+      }
+      const el = document.createElement("div");
+      el.textContent = "זמן לניקיון! הגיע הזמן למשימות 🧽";
+      el.style.cssText="position:fixed;top:16px;left:16px;right:16px;background:#7c3aed;color:#fff;padding:12px 14px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.2);z-index:9999;text-align:center";
+      document.body.appendChild(el); setTimeout(()=>el.remove(), 3500);
+    }catch(e){}
+  }
+  document.getElementById("btn-notify-test").addEventListener("click", fireNotification);
+  document.getElementById("btn-notify-toggle").addEventListener("click", ()=>{
+    const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false");
+    if(on) disableNotifications(); else enableNotifications();
+  });
 
-    /* ===== אירועים ===== */
-    document.getElementById("btn-new").addEventListener("click", ()=>{
-      // מרענן משימות היום (שומר לא גמורים ע"י carry אוטומטי ביום הבא)
-      state.mine = []; state.kids={mafal:[],maayan:[]};
-      saveState(); ensureTodayTasks(); renderAll();
-    });
-
-    document.getElementById("btn-make").addEventListener("click", ()=>{
-      const txt = document.getElementById("focus-input").value.trim();
-      if(!txt) return;
-      const parsed = parseFocus(txt);
-      // משלבים עם הקיימים – מה שלא קיים נוסף, קיימים נשמרים במצבם
-      const existing = state.focus.items || [];
-      const merged = [...existing];
-      parsed.forEach(p=>{
-        if(!merged.some(x=>x.text===p.text)) merged.push(p);
-      });
-      state.focus.items = merged;
-      saveState(); renderFocus();
-    });
-
-    document.getElementById("btn-hide-done").addEventListener("click", ()=>{
-      state.focus.hideDone = !state.focus.hideDone; saveState(); renderFocus();
-    });
-    document.getElementById("btn-show-all").addEventListener("click", ()=>{
-      state.focus.hideDone = false; saveState(); renderFocus();
-    });
-    document.getElementById("btn-clear").addEventListener("click", ()=>{
-      if(confirm("לנקות את כל הצ'ק-ליסט?")){ state.focus.items=[]; saveState(); renderFocus(); }
-    });
-
-    // פעולות פריט פוקוס
-    function focusDone(i){ state.focus.items[i].done = true; saveState(); renderFocus(); }
-    function focusUndo(i){ state.focus.items[i].done = false; saveState(); renderFocus(); }
-    function focusSkip(i){ const [x]=state.focus.items.splice(i,1); state.focus.items.push(x); saveState(); renderFocus(); }
-    function focusRemove(i){ state.focus.items.splice(i,1); saveState(); renderFocus(); }
-
-    /* ===== הפעלה ראשונה ===== */
-    ensureTodayTasks();
-    renderAll();
+  /* ========== אתחול ========== */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    renderDaily(); renderWeekly(); renderChecklist(true);
+    updateNotifyUI(); if(JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false")) scheduleDailyNotification();
+  });
   </script>
 </body>
 </html>
-<!-- התראות -->
-<section class="card p-5 mb-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h2 class="text-lg font-semibold text-gray-800">🔔 תזכורת יומית</h2>
-      <p class="tiny">התראה בין 21:00–22:00 להזכיר לסיים משימות. נשמר במכשיר.</p>
-    </div>
-    <div class="flex gap-2">
-      <button id="btn-notify-toggle" class="btn btn-ghost">הפעל תזכורת</button>
-      <button id="btn-notify-test" class="btn bg-purple-600 text-white hover:bg-purple-700">בדיקת תזכורת</button>
-    </div>
-  </div>
-  <p id="notify-status" class="tiny mt-2"></p>
-</section>
-/* ===================== התראות יומיות ===================== */
-const NOTIFY_KEY = "steph-org-notify";   // שמירת מצב ההתראה
-const statusEl = () => document.getElementById("notify-status");
-const toggleBtn = () => document.getElementById("btn-notify-toggle");
-
-function updateNotifyUI(){
-  const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false");
-  toggleBtn().textContent = on ? "כבה תזכורת" : "הפעל תזכורת";
-  statusEl().textContent = on
-    ? "התזכורת פעילה. ההתראה תופיע כל יום בין 21:00–22:00."
-    : "התזכורת כבויה.";
-}
-
-async function enableNotifications(){
-  if(!("Notification" in window)) { alert("הדפדפן לא תומך בהתראות"); return false; }
-  let perm = Notification.permission;
-  if(perm === "default") perm = await Notification.requestPermission();
-  if(perm !== "granted"){ alert("כדי לקבל התראות צריך לאשר בדפדפן"); return false; }
-  localStorage.setItem(NOTIFY_KEY, "true");
-  scheduleDailyNotification();
-  updateNotifyUI();
-  return true;
-}
-
-function disableNotifications(){
-  localStorage.setItem(NOTIFY_KEY, "false");
-  clearExistingTimers();
-  updateNotifyUI();
-}
-
-/* ניהול טיימרים */
-let notifyTimerId = null;
-function clearExistingTimers(){ if(notifyTimerId){ clearTimeout(notifyTimerId); notifyTimerId=null; } }
-
-/* תזמון: אם עכשיו 21:00–22:00 → נשלח תוך דקה (דמו). אחרת → לתזמן ל־21:00 הבא */
-function scheduleDailyNotification(){
-  clearExistingTimers();
-  const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false");
-  if(!on) return;
-
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0);
-  const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0, 0);
-
-  let msUntil;
-  if(now >= start && now <= end){
-    msUntil = 60*1000; // דקה – דמו
-  } else {
-    const next = (now < start) ? start : new Date(start.getTime()+24*60*60*1000);
-    msUntil = next.getTime() - now.getTime();
-  }
-
-  notifyTimerId = setTimeout(()=> {
-    fireNotification();
-    // קובעים שוב לעוד 24 שעות
-    notifyTimerId = setTimeout(fireNotification, 24*60*60*1000);
-  }, msUntil);
-}
-
-function fireNotification(){
-  try{
-    if("Notification" in window && Notification.permission==="granted"){
-      new Notification("זמן לניקיון! 🏠", {
-        body: "הגיע הזמן למשימות הבית שלך",
-      });
-    }
-    // גם פופ־אפ קטן בתוך האתר
-    try{
-      const el = document.createElement("div");
-      el.textContent = "זמן לניקיון! הגיע הזמן למשימות הבית שלך 🧽";
-      el.style.cssText = "position:fixed;top:16px;left:16px;right:16px;background:#7c3aed;color:#fff;padding:12px 14px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.2);z-index:9999;text-align:center";
-      document.body.appendChild(el);
-      setTimeout(()=>el.remove(), 4000);
-    }catch(e){}
-  }catch(e){}
-}
-
-/* אירועים לכפתורים */
-document.getElementById("btn-notify-test").addEventListener("click", fireNotification);
-document.getElementById("btn-notify-toggle").addEventListener("click", async ()=>{
-  const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false");
-  if(on) disableNotifications(); else await enableNotifications();
-});
-
-/* אתחול בעת טעינת הדף */
-updateNotifyUI();
-if(JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false")) scheduleDailyNotification();
-
-
