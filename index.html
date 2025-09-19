@@ -1,56 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="he" dir="rtl">
 <head>
-  <!-- 
-      This is an HTML comment
-      You can write text in a comment and the content won't be visible in the page
-    -->
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="https://glitch.com/favicon.ico" />
-
-  <!--
-      This is the page head - it contains info the browser uses
-      Like the title, which appears on the browser tab but not inside the page
-      Further down you'll see the content that displays in the page
-    -->
-  <title>Hello World!</title>
-
-  <!-- The website stylesheet -->
-  <link rel="stylesheet" href="/style.css" />
-
-  <!-- The website JavaScript file -->
-  <script src="/script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ארגון וסדר - המשימות שלי</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: "Heebo", sans-serif; }
+    .task-card { background: #f3f4f6; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+    .completed { text-decoration: line-through; opacity: 0.6; }
+    .checklist-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 8px; margin-bottom: 6px; }
+    .checklist-item button { margin-right: 6px; }
+  </style>
 </head>
+<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen p-6">
+  <h1 class="text-3xl font-bold text-center mb-6">🏠 ארגון וסדר</h1>
 
-<body>
-  <!--
-      The body includes the content you see in the page
-      Each element is defined using tags, like this <div></div>
-      The attributes like class="wrapper" let us style elements in the CSS
-    -->
-  <div class="wrapper">
-    <div class="content" role="main">
-      <h1 class="title">Oh hi website!</h1>
-      <img src="/cool-website.svg" class="illustration" alt="cool website" />
-      <div class="instructions">
-        <p>
-          Fork <a href="https://github.com/glitchdotcom/website-to-compute">this project</a> and open it in a GitHub Codespace.
-        </p>
-        <p> Follow the steps in the README to deploy your new website to Fastly in a few steps!
-        </p>
+  <!-- משימות יומיות -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">המשימות שלי היום</h2>
+    <div id="daily-tasks"></div>
+  </section>
 
+  <!-- משימות לילדות -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">👧 משימות לילדות</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <h3 class="font-bold">מפל (10)</h3>
+        <div id="mafal-tasks"></div>
       </div>
-
-      <footer class="footer">
-        <div>
-          <a class="remix" href="https://github.com/glitchdotcom/website-to-compute">🚧 Get your own site</a>
-        </div>
-      </footer>
+      <div>
+        <h3 class="font-bold">מעיין (8)</h3>
+        <div id="maayan-tasks"></div>
+      </div>
     </div>
-  </div>
-</body>
+  </section>
 
+  <!-- משימות מורכבות לסופ״ש -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">🟣 משימה מורכבת לסופ״ש</h2>
+    <div id="weekend-task"></div>
+  </section>
+
+  <!-- תכנית ממוקדת -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">🧭 תכנית ממוקדת לאזור</h2>
+    <textarea id="focus-input" class="w-full p-3 border rounded mb-3" rows="5" placeholder="הדביקי כאן צעדים (כל שורה = צעד)"></textarea>
+    <button onclick="generateChecklist()" class="bg-purple-500 text-white px-4 py-2 rounded">✅ צור/עדכן צ׳ק-ליסט</button>
+    <div id="focus-checklist" class="mt-4"></div>
+  </section>
+
+  <script>
+    // משימות יומיות פשוטות
+    const dailyTasks = [
+      "🧽 לנקות משטח מטבח",
+      "🛏️ לסדר מיטות",
+      "🧹 טאטוא מהיר בסלון"
+    ];
+
+    // משימות לילדות
+    const mafalTasks = ["📚 לסדר תיק בית ספר", "🧦 לאסוף כביסה לחדר כביסה"];
+    const maayanTasks = ["🧸 לסדר צעצועים בפינה", "🍽️ לעזור לערוך שולחן ערב"];
+
+    // משימות מורכבות לפי סבב שבועי
+    const weekendAreas = [
+      "🍳 סידור ארונות המטבח",
+      "🧺 ארגון חדר שירות",
+      "👗 ארון בגדים גדול",
+      "🛏️ חדר שינה הורים",
+      "🎮 חדר משחקים",
+      "🚿 ארגון אמבטיה"
+    ];
+
+    // הצגת משימות יומיות
+    function renderDailyTasks() {
+      const container = document.getElementById("daily-tasks");
+      container.innerHTML = "";
+      dailyTasks.forEach((task, i) => {
+        const div = document.createElement("div");
+        div.className = "task-card";
+        div.innerHTML = `<label><input type="checkbox" onchange="toggleComplete(this)"> ${task}</label>`;
+        container.appendChild(div);
+      });
+    }
+
+    // הצגת משימות לילדות
+    function renderKidsTasks() {
+      const m = document.getElementById("mafal-tasks");
+      const n = document.getElementById("maayan-tasks");
+      mafalTasks.forEach(t => {
+        m.innerHTML += `<div class="task-card"><label><input type="checkbox" onchange="toggleComplete(this)"> ${t}</label></div>`;
+      });
+      maayanTasks.forEach(t => {
+        n.innerHTML += `<div class="task-card"><label><input type="checkbox" onchange="toggleComplete(this)"> ${t}</label></div>`;
+      });
+    }
+
+    // משימה מורכבת לסופ"ש (משתנה לפי שבוע)
+    function renderWeekendTask() {
+      const container = document.getElementById("weekend-task");
+      const day = new Date();
+      const isWeekend = (day.getDay() === 5 || day.getDay() === 6); // שישי או שבת
+      if (!isWeekend) {
+        container.innerHTML = "<p class='text-gray-500'>משימות מורכבות יוצגו רק בסופ״ש</p>";
+        return;
+      }
+      const index = Math.floor(day.getTime() / (7*24*60*60*1000)) % weekendAreas.length;
+      container.innerHTML = `<div class="task-card"><label><input type="checkbox" onchange="toggleComplete(this)"> ${weekendAreas[index]}</label></div>`;
+    }
+
+    // צ׳ק ליסט ממוקד
+    function generateChecklist() {
+      const text = document.getElementById("focus-input").value.trim();
+      if (!text) return;
+      const steps = text.split("\n").filter(x => x.trim() !== "");
+      const container = document.getElementById("focus-checklist");
+      container.innerHTML = "";
+      steps.forEach(step => {
+        const div = document.createElement("div");
+        div.className = "checklist-item";
+        div.innerHTML = `<span>${step}</span>
+          <div>
+            <button onclick="markDone(this)" class="bg-green-200 px-2 rounded">✅</button>
+            <button onclick="skipStep(this)" class="bg-yellow-200 px-2 rounded">⏭️</button>
+            <button onclick="removeStep(this)" class="bg-red-200 px-2 rounded">🗑️</button>
+          </div>`;
+        container.appendChild(div);
+      });
+    }
+
+    function toggleComplete(el) {
+      if (el.checked) el.parentElement.classList.add("completed");
+      else el.parentElement.classList.remove("completed");
+    }
+    function markDone(btn) { btn.parentElement.parentElement.style.textDecoration = "line-through"; btn.parentElement.parentElement.style.opacity = "0.6"; }
+    function skipStep(btn) { btn.parentElement.parentElement.style.background = "#fef9c3"; }
+    function removeStep(btn) { btn.parentElement.parentElement.remove(); }
+
+    // הפעלה
+    renderDailyTasks();
+    renderKidsTasks();
+    renderWeekendTask();
+  </script>
+</body>
 </html>
