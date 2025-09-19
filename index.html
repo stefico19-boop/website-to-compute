@@ -9,7 +9,7 @@
   <!-- Heebo -->
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet">
   <!-- Favicon (סמלון משלנו) -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs/%3E%3Crect width='64' height='64' rx='14' fill='%238A2BE2'/%3E%3Cpath d='M17 43c10-6 20-6 30 0M20 25l9 9 15-15' stroke='%23fff' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238A2BE2'/%3E%3Cpath d='M17 43c10-6 20-6 30 0M20 25l9 9 15-15' stroke='%23fff' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <style>
     :root{--brand:#7c3aed;--brand2:#a855f7;}
     body{font-family:'Heebo',system-ui,sans-serif;background:linear-gradient(180deg,#fff 0%,#fff7ff 60%,#ffeefe 100%);}
@@ -20,14 +20,6 @@
     .btn-ghost{background:#fff;border:1px solid #e5e7eb}
     .card{border-radius:20px}
     .mono{font-feature-settings:"tnum" 1,"ss01" 1}
-    .pill{border-radius:999px}
-    .shadow-soft{box-shadow:0 10px 25px rgba(0,0,0,.06)}
-    .scroll-snap{scroll-snap-type:x mandatory}
-    .scroll-snap > *{scroll-snap-align:start}
-    .grid-areas{display:grid;gap:.8rem}
-    @media(min-width:640px){.grid-areas{grid-template-columns:repeat(2,1fr)}}
-    @media(min-width:1024px){.grid-areas{grid-template-columns:repeat(3,1fr)}}
-    /* Toast */
     .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border-radius:12px;padding:.8rem 1rem;opacity:0;pointer-events:none;transition:.25s}
     .toast.show{opacity:1;pointer-events:auto}
   </style>
@@ -63,7 +55,7 @@
         </div>
         <div class="glass card p-5">
           <div class="text-gray-600">הושלמו (חודש)</div>
-          <button class="text-4xl font-extrabold text-emerald-600 mono hover:underline" data-open-list="done" id="kpi-done">0</button>
+          <button class="text-4xl font-extrabולד text-emerald-600 mono hover:underline" data-open-list="done" id="kpi-done">0</button>
         </div>
       </div>
 
@@ -101,6 +93,16 @@
             <button id="btn-clear-day" class="btn bg-rose-600 text-white">🗑️ אפס יום</button>
           </div>
         </div>
+
+        <!-- מתג מיקוד: 2 משימות לכל אחת -->
+        <div class="flex items-center gap-2 mt-1">
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" id="focus-2" class="scale-110" checked>
+            מיקוד: 2 משימות לכל אחת
+          </label>
+          <span class="text-xs text-gray-500">(עוד משימות – בלחיצה “הראי עוד”)</span>
+        </div>
+
         <div id="today-lists" class="grid md:grid-cols-2 gap-4"></div>
       </div>
 
@@ -136,6 +138,7 @@
 אבק מדפים קטנים [מעיין] [אמצ"ש]
 סדר צעצועים 3 סלסלות [מפל] [אמצ"ש]
 ניקוי מסילות חלון [סטפני] [שישי]
+ניקוי ספות – כתמים קלים [סטפני] [שבת]
 ..."></textarea>
         <div class="flex gap-2">
           <button id="btn-paste-parse" class="btn btn-brand">✅ צור/עדכן צ׳ק-ליסט</button>
@@ -174,6 +177,8 @@
     const MONTH_KEY = "orgorder.v3.month";
     const TODAY_KEY = "orgorder.v3.today";
     const NOTIFY_KEY = "orgorder.v3.notify";
+    const FOCUS_KEY = "orgorder.v3.focus2";
+
     let tasks = [];
     let stars = {mafal:0, maayan:0};
     const todayISO = new Date().toISOString().slice(0,10);
@@ -184,19 +189,16 @@
     function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2000); }
     function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
     function thisMonth(t){ return (t.due||"").startsWith(monthKey); }
-    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
     function pick(arr,n=1){ const a=[...arr]; const out=[]; while(a.length&&out.length<n){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); } return out; }
     function nextWeekdayDate(d=new Date()){
       const dt=new Date(d); dt.setDate(dt.getDate()+1);
       return dt.toISOString().slice(0,10);
     }
     function nextFriday(d=new Date()){
-      const dt=new Date(d); const day=dt.getDay(); // 5=Fri(ישראל לעתים שונה, נשתמש ב-5)
-      const diff=(5-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
+      const dt=new Date(d); const day=dt.getDay(); const diff=(5-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
     }
     function nextSaturday(d=new Date()){
-      const dt=new Date(d); const day=dt.getDay(); // 6=Sat
-      const diff=(6-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
+      const dt=new Date(d); const day=dt.getDay(); const diff=(6-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
     }
 
     /*************** LOAD/SAVE ***************/
@@ -230,11 +232,10 @@
     /*************** LIBRARY: 100+ micro-tasks per area ***************/
     function buildAreaTasks(area){
       const out=[];
-      // גנרטורים לפי אזור
       if(area==="סלון"){
         for(let i=1;i<=20;i++) out.push(`אבק מדף/נישה מספר ${i}`);
         for(let i=1;i<=12;i++) out.push(`סידור סלסלת צעצועים ${i}`);
-        for(let i=1;i<=12;i++) out.push(`מיון מגזינים/ניירות – חבילה ${i}`);
+        for(let i=1;i<=12;i++) out.push(`מיון ניירת – חבילה ${i}`);
         for(let i=1;i<=6;i++)  out.push(`ניקוי מסילות חלון סלון ${i}`);
         out.push("ניקוי ספות – שאיבה יסודית");
         out.push("ניקוי ספות – הסרת כתמים נקודתיים");
@@ -291,26 +292,21 @@
         out.push("ניגוב מעקות/שולחן חוץ");
         out.push("סידור צעצועי חוץ/עציצים");
       }
-      // הבטחה ל~100: משלים בסדר כללי
       while(out.length<100) out.push(`משימת תחזוקה נקודתית ${out.length+1}`);
       return out;
     }
 
     function ensureMonthlyLibrary(){
       const current = localStorage.getItem(MONTH_KEY);
-      if(current===monthKey) return; // כבר נוצר לחודש זה
-      // רוקן סטטוסים “זמניים” ישנים
+      if(current===monthKey) return;
       tasks = tasks.filter(t => thisMonth(t));
-      // הזרקה לכל אזור
       for(const area of AREAS){
         const titles = buildAreaTasks(area);
         for(const title of titles){
           tasks.push({
             id: uid(),
-            title,
-            area,
-            owner: "stef",
-            size: /החלפת מצעים|ניקוי מקלחת|ניקוי תנור|ספות|מסילות/.test(title) ? "big" : "small",
+            title, area, owner: "stef",
+            size: /החלפת מצעים|מקלחת|תנור|ספות|מסילות/.test(title) ? "big" : "small",
             schedule: "any",
             status: "todo",
             created: todayISO,
@@ -350,13 +346,11 @@
     ];
 
     function newDay(){
-      const d = new Date(); const dow=d.getDay(); // 0=א, 5=ו, 6=ש
+      const d = new Date(); const dow=d.getDay();
       const weekday = (dow>=0 && dow<=4);
-      // בטל שיוכים קודמים של היום
       tasks = tasks.map(t => (t.assigned===todayISO ? {...t, assigned:null} : t));
-      // שתי משימות קלות לכל ילדה (יומי)
-      const pool = kidsPool.slice();
-      const m1 = pick(pool,2); const m2 = pick(pool,2);
+      // שתי משימות קלות לכל ילדה
+      const m1 = pick(kidsPool,2); const m2 = pick(kidsPool,2);
       for(const m of m1){
         tasks.push({
           id: uid(), title:m.title, area:m.area, owner:"mafal",
@@ -371,23 +365,20 @@
           created: todayISO, due: todayISO, video: ytLink(m.area,m.title), source:"daily", points:1, assigned:todayISO
         });
       }
-      // שתי משימות קצרות לסטפני (א׳-ה׳)
       if(weekday){
         const shortables = tasks.filter(t=>t.size==="small" && t.status==="todo" && thisMonth(t));
         for(const t of pick(shortables,2)){
           t.owner="stef"; t.due=todayISO; t.assigned=todayISO; t.source="assigned";
         }
       } else {
-        // סופ״ש – משימות מורכבות לסטפני
-        const wk = pick(weekendBig,3);
-        for(const w of wk){
+        // סופ״ש – מורכבות לסטפני + 2 קלות לכל ילדה
+        for(const w of pick(weekendBig,3)){
           tasks.push({
             id: uid(), title:w.title, area:w.area, owner:"stef",
             size:"big", schedule: dow===5 ? "fri":"sat", status:"todo",
             created: todayISO, due: todayISO, video: ytLink(w.area,w.title), source:"weekend", points:3, assigned:todayISO
           });
         }
-        // לכל ילדה – 2 קלות בסופ״ש
         for(const kid of ["mafal","maayan"]){
           for(const m of pick(kidsPool,2)){
             tasks.push({id:uid(), title:m.title, area:m.area, owner:kid, size:"small", schedule:"sat", status:"todo",
@@ -435,21 +426,20 @@
       const prev = t.status;
       t.status = status;
       if(status==="done"){
-        // נקודות לילדות
         if(t.owner==="mafal") stars.mafal += (t.points||1);
         if(t.owner==="maayan") stars.maayan += (t.points||1);
       }
       if(status==="undo"){ t.status = "todo"; }
-      save(); renderAll();
-      if(status==="done") toast("כל הכבוד! ✅");
-      if(status==="skipped") toast("דילגת על המשימה");
       if(status==="deferred"){
-        // קובעים דחייה לשבוע הבא/ליום הבא בהתאם לסוג
         const due = t.schedule==="fri" ? nextFriday(new Date(t.due||todayISO))
                  : t.schedule==="sat" ? nextSaturday(new Date(t.due||todayISO))
                  : nextWeekdayDate(new Date(t.due||todayISO));
-        t.due = due; save(); renderAll(); toast("נדחה לשלב הבא 📆");
+        t.due = due;
       }
+      save(); renderAll();
+      if(status==="done") toast("כל הכבוד! ✅");
+      if(status==="skipped") toast("דילגת על המשימה");
+      if(status==="deferred") toast("נדחה לשלב הבא 📆");
       if(status==="undo") toast("שוחזר ✨");
     }
 
@@ -483,7 +473,7 @@
         <span class="chip bg-blue-100 text-blue-700">${t.owner?OWNERS[t.owner]:""}</span>
       `;
       return `
-        <div class="glass p-4 rounded-xl space-y-2 shadow-soft">
+        <div class="glass p-4 rounded-xl space-y-2">
           <div class="flex justify-between">
             <div class="font-bold">${t.title}</div>
             <a class="chip bg-purple-50 text-purple-700" href="${t.video}" target="_blank" rel="noopener">🎬</a>
@@ -499,32 +489,7 @@
       `;
     }
 
-    function renderToday(){
-      const box=$("#today-lists");
-      const assigned = tasks.filter(t=>t.assigned===todayISO || t.due===todayISO);
-      const byOwner = o => assigned.filter(t=>t.owner===o && t.status!=="done" && t.status!=="skipped" && t.status!=="hidden");
-      const sections = [
-        {title:"מפל – 2 קלות", owner:"mafal"},
-        {title:"מעיין – 2 קלות", owner:"maayan"},
-        {title:"סטפני – יומי", owner:"stef"}
-      ];
-      box.innerHTML = sections.map(s=>{
-        const list = byOwner(s.owner).map(cardForTask).join("") || `<div class="text-gray-500">אין כרגע. לחצי "טען משימות חדשות".</div>`;
-        return `<div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <h4 class="font-extrabold text-lg">${s.title}</h4>
-          </div>
-          ${list}
-        </div>`;
-      }).join("");
-
-      // הושלם היום
-      const done = assigned.filter(t=>t.status==="done");
-      $("#completed-today").innerHTML = done.length? done.map(t=>`<div class="text-sm">✅ ${t.title} <span class="text-gray-500">(${t.area})</span> <button class="text-purple-700 underline" data-act="undo" data-id="${t.id}">שחזר</button></div>`).join("") : "עדיין לא הושלמו משימות.";
-    }
-
     function renderKPIs(){
-      // חודשי
       const monthTasks = tasks.filter(thisMonth);
       const todo = monthTasks.filter(t=>t.status==="todo").length;
       const done = monthTasks.filter(t=>t.status==="done").length;
@@ -534,9 +499,59 @@
       $("#kpi-done").textContent=done;
       $("#kpi-skipped").textContent=skipped;
       $("#kpi-deferred").textContent=deferred;
-      // כוכבים
       $("#stars-mafal").textContent=stars.mafal;
       $("#stars-maayan").textContent=stars.maayan;
+    }
+
+    function renderToday(){
+      const box=$("#today-lists");
+      const assigned = tasks.filter(t=>t.assigned===todayISO || t.due===todayISO);
+      const byOwner = o => assigned.filter(t=>t.owner===o && t.status!=="done" && t.status!=="skipped" && t.status!=="hidden");
+
+      const focusMode = JSON.parse(localStorage.getItem(FOCUS_KEY) || 'true');
+      const LIMIT = focusMode ? 2 : Infinity;
+      const focusEl = $("#focus-2"); if(focusEl){ focusEl.checked = focusMode; }
+
+      function sectionHTML(title, owner){
+        const all = byOwner(owner);
+        const shown = all.slice(0, LIMIT);
+        const moreCount = Math.max(0, all.length - shown.length);
+        const list = shown.map(cardForTask).join("") || `<div class="text-gray-500">אין כרגע. לחצי "טען משימות חדשות".</div>`;
+        const moreBtn = moreCount > 0
+          ? `<button class="btn btn-ghost" data-open-owner="${owner}">+ הראי עוד ${moreCount}</button>`
+          : "";
+        return `<div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-lg">${title}</h4>
+            ${moreBtn}
+          </div>
+          ${list}
+        </div>`;
+      }
+
+      box.innerHTML = [
+        sectionHTML("מפל – 2 קלות", "mafal"),
+        sectionHTML("מעיין – 2 קלות", "maayan"),
+        sectionHTML("סטפני – מיקוד יומי", "stef")
+      ].join("");
+
+      // “הראי עוד …” – מודאל עם כל המשימות של אותה בעלת-משימה
+      document.querySelectorAll('[data-open-owner]').forEach(btn=>{
+        btn.onclick=()=>{
+          const owner = btn.dataset.openOwner;
+          const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+          title.textContent = "כל המשימות – " + (owner==="mafal"?"מפל":owner==="maayan"?"מעיין":"סטפני");
+          const arr = byOwner(owner);
+          cont.innerHTML = arr.length ? arr.map(cardForTask).join("") : `<div class="text-gray-500">אין פריטים</div>`;
+          modal.showModal();
+        };
+      });
+
+      // הושלם היום
+      const done = assigned.filter(t=>t.status==="done");
+      $("#completed-today").innerHTML = done.length
+        ? done.map(t=>`<div class="text-sm">✅ ${t.title} <span class="text-gray-500">(${t.area})</span> <button class="text-purple-700 underline" data-act="undo" data-id="${t.id}">שחזר</button></div>`).join("")
+        : "עדיין לא הושלמו משימות.";
     }
 
     function renderAll(){
@@ -556,7 +571,6 @@
       if(perm==="default"){ perm = await Notification.requestPermission(); }
       if(perm!=="granted"){ toast("הרשאה נחסמה בדפדפן"); return; }
       localStorage.setItem(NOTIFY_KEY,"true"); updateNotifyBadge();
-      // שליחת בדיקה מיידית
       new Notification("בדיקת תזכורת 🛎️",{ body:"זה עובד! אם תרצי — הוסיפי לקיצור מסך הבית לקבלת חוויה טובה יותר."});
     }
 
@@ -570,102 +584,115 @@
       history.replaceState({}, "", "#"+tab);
     }
 
-    /*************** EVENTS ***************/
-    // טAbs
-    $("#tab-dashboard").addEventListener("click",()=>show("dashboard"));
-    $("#tab-home").addEventListener("click",()=>show("home"));
-    $("#tab-paste").addEventListener("click",()=>show("paste"));
+    /*************** INIT & EVENTS ***************/
+    function bindEvents(){
+      // טAbs
+      $("#tab-dashboard").addEventListener("click",()=>show("dashboard"));
+      $("#tab-home").addEventListener("click",()=>show("home"));
+      $("#tab-paste").addEventListener("click",()=>show("paste"));
 
-    // פעולה על כרטיס
-    document.body.addEventListener("click", (e)=>{
-      const act = e.target?.dataset?.act; if(!act) return;
-      const id  = e.target.dataset.id;
-      if(act==="done") setStatus(id,"done");
-      if(act==="skip") setStatus(id,"skipped");
-      if(act==="defer") setStatus(id,"deferred");
-      if(act==="undo") setStatus(id,"undo");
-    });
+      // פעולה על כרטיס
+      document.body.addEventListener("click", (e)=>{
+        const act = e.target?.dataset?.act; if(!act) return;
+        const id  = e.target.dataset.id;
+        if(act==="done") setStatus(id,"done");
+        if(act==="skip") setStatus(id,"skipped");
+        if(act==="defer") setStatus(id,"deferred");
+        if(act==="undo") setStatus(id,"undo");
+      });
 
-    // KPI open list
-    document.body.addEventListener("click",(e)=>{
-      const type = e.target?.dataset?.openList; if(!type) return;
-      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
-      let arr = tasks.filter(thisMonth);
-      if(type==="todo") arr = arr.filter(t=>t.status==="todo");
-      if(type==="done") arr = arr.filter(t=>t.status==="done");
-      if(type==="skipped") arr = arr.filter(t=>t.status==="skipped");
-      if(type==="deferred") arr = arr.filter(t=>t.status==="deferred");
-      title.textContent = "רשימה: "+(type==="todo"?"טרם טופלו":type==="done"?"הושלמו":type==="skipped"?"דילוגים":"דחיות");
-      cont.innerHTML = arr.length? arr.slice(0,200).map(cardForTask).join("") : `<div class="text-gray-500">אין פריטים להצגה</div>`;
-      modal.showModal();
-    });
+      // KPI open list
+      document.body.addEventListener("click",(e)=>{
+        const type = e.target?.dataset?.openList; if(!type) return;
+        const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+        let arr = tasks.filter(thisMonth);
+        if(type==="todo") arr = arr.filter(t=>t.status==="todo");
+        if(type==="done") arr = arr.filter(t=>t.status==="done");
+        if(type==="skipped") arr = arr.filter(t=>t.status==="skipped");
+        if(type==="deferred") arr = arr.filter(t=>t.status==="deferred");
+        title.textContent = "רשימה: "+(type==="todo"?"טרם טופלו":type==="done"?"הושלמו":type==="skipped"?"דילוגים":"דחיות");
+        cont.innerHTML = arr.length? arr.slice(0,250).map(cardForTask).join("") : `<div class="text-gray-500">אין פריטים להצגה</div>`;
+        modal.showModal();
+      });
 
-    // New day / clear
-    $("#btn-new-day").addEventListener("click", newDay);
-    $("#btn-clear-day").addEventListener("click", ()=>{
-      tasks = tasks.filter(t=>t.assigned!==todayISO && t.due!==todayISO);
-      save(); renderAll(); toast("נוקו משימות היום");
-    });
+      // New day / clear
+      $("#btn-new-day").addEventListener("click", newDay);
+      $("#btn-clear-day").addEventListener("click", ()=>{
+        tasks = tasks.filter(t=>t.assigned!==todayISO && t.due!==todayISO);
+        save(); renderAll(); toast("נוקו משימות היום");
+      });
 
-    // Notifications
-    $("#btn-notify-test").addEventListener("click", enableNotifyNow);
+      // Notifications
+      $("#btn-notify-test").addEventListener("click", enableNotifyNow);
 
-    // Paste
-    $("#btn-paste-parse").addEventListener("click", ()=>{
-      const n = parsePaste($("#paste-input").value||"");
-      $("#paste-result").textContent = n? `נוספו/עודכנו ${n} משימות` : "לא זוהו משימות";
-      renderAll();
-    });
-    $("#btn-paste-clear").addEventListener("click", ()=>{$("#paste-input").value=""; $("#paste-result").textContent="";});
-    $("#btn-paste-show").addEventListener("click", ()=>{
-      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
-      title.textContent="כל המשימות (חודש)";
-      const arr = tasks.filter(thisMonth).slice(0,300);
-      cont.innerHTML = arr.map(cardForTask).join("");
-      modal.showModal();
-    });
+      // Paste
+      $("#btn-paste-parse").addEventListener("click", ()=>{
+        const n = parsePaste($("#paste-input").value||"");
+        $("#paste-result").textContent = n? `נוספו/עודכנו ${n} משימות` : "לא זוהו משימות";
+        renderAll();
+      });
+      $("#btn-paste-clear").addEventListener("click", ()=>{$("#paste-input").value=""; $("#paste-result").textContent="";});
+      $("#btn-paste-show").addEventListener("click", ()=>{
+        const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+        title.textContent="כל המשימות (חודש)";
+        const arr = tasks.filter(thisMonth).slice(0,300);
+        cont.innerHTML = arr.map(cardForTask).join("");
+        modal.showModal();
+      });
 
-    // Rewards / History
-    $("#btn-rewards").addEventListener("click", ()=>{
-      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
-      title.textContent="🎁 חנות פרסים";
-      cont.innerHTML=`
-        <div class="space-y-3">
-          <div>10⭐ = גלידה / 20⭐ = סרט משפחה / 30⭐ = יציאה לפארק מיוחד</div>
-          <div class="flex gap-3">
-            <button class="btn btn-brand" id="buy-ice">🍦 גלידה (10⭐)</button>
-            <button class="btn btn-brand" id="buy-movie">🎬 סרט (20⭐)</button>
-            <button class="btn btn-brand" id="buy-park">🎡 פארק (30⭐)</button>
-          </div>
-        </div>`;
-      modal.showModal();
-      cont.querySelector("#buy-ice").onclick=()=>{ if(stars.mafal>=10){stars.mafal-=10; save(); renderAll(); toast("נרכש פרס למפל 🍦")} else toast("לא מספיק ⭐"); };
-      cont.querySelector("#buy-movie").onclick=()=>{ if(stars.maayan>=20){stars.maayan-=20; save(); renderAll(); toast("נרכש פרס למעיין 🎬")} else toast("לא מספיק ⭐"); };
-      cont.querySelector("#buy-park").onclick=()=>{ if(stars.maayan>=30){stars.maayan-=30; save(); renderAll(); toast("פרס פארק 🎡")} else toast("לא מספיק ⭐"); };
-    });
+      // Rewards / History
+      $("#btn-rewards").addEventListener("click", ()=>{
+        const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+        title.textContent="🎁 חנות פרסים";
+        cont.innerHTML=`
+          <div class="space-y-3">
+            <div>10⭐ = גלידה / 20⭐ = סרט משפחה / 30⭐ = יציאה לפארק</div>
+            <div class="flex gap-3">
+              <button class="btn btn-brand" id="buy-ice">🍦 גלידה (10⭐)</button>
+              <button class="btn btn-brand" id="buy-movie">🎬 סרט (20⭐)</button>
+              <button class="btn btn-brand" id="buy-park">🎡 פארק (30⭐)</button>
+            </div>
+          </div>`;
+        modal.showModal();
+        cont.querySelector("#buy-ice").onclick=()=>{ if(stars.mafal>=10){stars.mafal-=10; save(); renderAll(); toast("נרכש פרס למפל 🍦")} else toast("לא מספיק ⭐"); };
+        cont.querySelector("#buy-movie").onclick=()=>{ if(stars.maayan>=20){stars.maayan-=20; save(); renderAll(); toast("נרכש פרס למעיין 🎬")} else toast("לא מספיק ⭐"); };
+        cont.querySelector("#buy-park").onclick=()=>{ if(stars.maayan>=30){stars.maayan-=30; save(); renderAll(); toast("פרס פארק 🎡")} else toast("לא מספיק ⭐"); };
+      });
 
-    $("#btn-history").addEventListener("click", ()=>{
-      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
-      title.textContent="היסטוריית חודש";
-      const arr = tasks.filter(thisMonth && (t=>t.status==="done"));
-      // נפרוס לפי תאריך
-      const byDate={}; for(const t of tasks.filter(thisMonth)){ const d=t.due||t.created; (byDate[d]=byDate[d]||[]).push(t); }
-      cont.innerHTML = Object.entries(byDate).sort(([a],[b])=>a.localeCompare(b)).map(([d,items])=>{
-        const done = items.filter(x=>x.status==="done").length;
-        return `<div class="p-3 rounded-xl bg-white/70">
-          <div class="font-bold mb-2">${d} · הושלמו ${done}/${items.length}</div>
-          ${items.slice(0,40).map(x=>`<div class="text-sm ${x.status==='done'?'text-emerald-700':'text-gray-600'}">• ${x.title} <span class="text-gray-400">(${x.area})</span></div>`).join("")}
-        </div>`;
-      }).join("") || "<div class='text-gray-500'>אין נתונים עדיין</div>";
-      modal.showModal();
-    });
+      $("#btn-history").addEventListener("click", ()=>{
+        const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+        title.textContent="היסטוריית חודש";
+        const byDate={}; for(const t of tasks.filter(thisMonth)){ const d=t.due||t.created; (byDate[d]=byDate[d]||[]).push(t); }
+        cont.innerHTML = Object.entries(byDate).sort(([a],[b])=>a.localeCompare(b)).map(([d,items])=>{
+          const done = items.filter(x=>x.status==="done").length;
+          return `<div class="p-3 rounded-xl bg-white/70">
+            <div class="font-bold mb-2">${d} · הושלמו ${done}/${items.length}</div>
+            ${items.slice(0,40).map(x=>`<div class="text-sm ${x.status==='done'?'text-emerald-700':'text-gray-600'}">• ${x.title} <span class="text-gray-400">(${x.area})</span></div>`).join("")}
+          </div>`;
+        }).join("") || "<div class='text-gray-500'>אין נתונים עדיין</div>";
+        modal.showModal();
+      });
 
-    /*************** INIT ***************/
+      // מתג מיקוד – שמירה/רענון
+      const f = $("#focus-2");
+      if(f){
+        const stored = localStorage.getItem(FOCUS_KEY);
+        if (stored!==null) f.checked = JSON.parse(stored);
+        f.addEventListener("change", ()=>{
+          localStorage.setItem(FOCUS_KEY, JSON.stringify(f.checked));
+          renderToday();
+        });
+      }
+    }
+
     load();
     ensureMonthlyLibrary();
     updateNotifyBadge();
+    bindEvents();
     show(location.hash.replace("#","") || "dashboard");
-    ensureToday();
+    // אם היום שונה – יבנה אוטומטית; אחרת רק רנדר
+    const storedToday = localStorage.getItem(TODAY_KEY);
+    if(storedToday!==todayISO) newDay(); else renderAll();
   </script>
 </body>
 </html>
