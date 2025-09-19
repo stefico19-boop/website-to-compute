@@ -4,504 +4,668 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ארגון וסדר ✨</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Heebo -->
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- Favicon (סמלון משלנו) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs/%3E%3Crect width='64' height='64' rx='14' fill='%238A2BE2'/%3E%3Cpath d='M17 43c10-6 20-6 30 0M20 25l9 9 15-15' stroke='%23fff' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <style>
-    :root{
-      --bg1:#fff3ff; --bg2:#f8f4ff; --brand:#7c3aed; --brand2:#a855f7; --ink:#1f2937;
-    }
-    html,body{height:100%}
-    body{font-family:Heebo,system-ui;background:radial-gradient(1200px 600px at 80% -10%, #ffe8ff 0%, transparent 60%),
-                         radial-gradient(1000px 600px at -10% 0%, #efe9ff 0%, transparent 60%),
-                         linear-gradient(180deg,var(--bg2),#ffffff)}
-    .glass{backdrop-filter: blur(10px); background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.7)); box-shadow:0 10px 30px rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.12)}
-    .chip{display:inline-flex;align-items:center;gap:.4rem;border-radius:999px;padding:.2rem .6rem;font-size:.8rem}
-    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:.55rem .8rem;font-weight:600}
-    .btn-ghost{background:rgba(124,58,237,.08); color:var(--brand)}
-    .btn-solid{background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;box-shadow:0 10px 25px rgba(124,58,237,.25)}
-    .btn-pill{border-radius:999px}
-    .tab{padding:.55rem 1rem;border-radius:12px}
-    .grid-cards{display:grid;grid-template-columns:repeat(2, minmax(0,1fr)); gap:.75rem}
-    @media (min-width:640px){.grid-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
-    .card{border-radius:18px}
-    .progress{height:10px;border-radius:999px;background:#f1e8ff;overflow:hidden}
-    .progress>span{display:block;height:100%;background:linear-gradient(90deg,#8b5cf6,#a855f7)}
-    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:.7rem 1rem;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:.25s}
+    :root{--brand:#7c3aed;--brand2:#a855f7;}
+    body{font-family:'Heebo',system-ui,sans-serif;background:linear-gradient(180deg,#fff 0%,#fff7ff 60%,#ffeefe 100%);}
+    .glass{backdrop-filter: blur(10px); background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.75)); box-shadow: 0 10px 30px rgba(124,58,237,.12)}
+    .chip{display:inline-flex;align-items:center;padding:.25rem .6rem;border-radius:999px;font-size:.8rem;font-weight:600}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:12px;font-weight:700}
+    .btn-brand{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff}
+    .btn-ghost{background:#fff;border:1px solid #e5e7eb}
+    .card{border-radius:20px}
+    .mono{font-feature-settings:"tnum" 1,"ss01" 1}
+    .pill{border-radius:999px}
+    .shadow-soft{box-shadow:0 10px 25px rgba(0,0,0,.06)}
+    .scroll-snap{scroll-snap-type:x mandatory}
+    .scroll-snap > *{scroll-snap-align:start}
+    .grid-areas{display:grid;gap:.8rem}
+    @media(min-width:640px){.grid-areas{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.grid-areas{grid-template-columns:repeat(3,1fr)}}
+    /* Toast */
+    .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border-radius:12px;padding:.8rem 1rem;opacity:0;pointer-events:none;transition:.25s}
     .toast.show{opacity:1;pointer-events:auto}
   </style>
 </head>
-<body class="min-h-screen text-[15px] text-gray-800">
-  <!-- HEADER -->
-  <header class="sticky top-0 z-30 bg-white/70 backdrop-blur border-b border-purple-100">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl">✨</span>
-        <h1 class="font-extrabold text-xl sm:text-2xl text-purple-700">ארגון וסדר</h1>
-      </div>
+<body class="min-h-screen">
+  <!-- Top bar -->
+  <header class="sticky top-0 z-30 bg-white/70 backdrop-blur-md border-b">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="text-2xl font-extrabold text-purple-700">ארגון וסדר ✨</div>
       <nav class="flex gap-2">
-        <button id="tab-home" class="tab bg-purple-600 text-white">בית</button>
-        <button id="tab-dash" class="tab hover:bg-purple-50">דשבורד</button>
+        <button id="tab-dashboard" class="btn btn-ghost" aria-current="page">דשבורד</button>
+        <button id="tab-home" class="btn btn-ghost">בית</button>
+        <button id="tab-paste" class="btn btn-ghost">הדבקה ממוקדת</button>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 py-5 sm:py-8">
-    <!-- HOME VIEW -->
-    <section id="view-home" class="space-y-6">
-      <!-- TODAY CARDS -->
-      <div class="glass card p-4 sm:p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="font-bold text-lg">משימות להיום</h2>
-          <div class="flex gap-2">
-            <button id="btn-refresh" class="btn btn-ghost">🔄 טען משימות חדשות</button>
-            <button id="btn-test-notify" class="btn btn-ghost">🔔 בדיקת תזכורת</button>
-          </div>
+  <main class="max-w-5xl mx-auto px-4 pb-28 pt-6 space-y-6">
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="space-y-6">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass card p-5">
+          <div class="text-gray-600">טרם טופלו</div>
+          <button class="text-4xl font-extrabold text-amber-500 mono hover:underline" data-open-list="todo" id="kpi-todo">0</button>
         </div>
-
-        <div class="grid gap-4">
-          <!-- STEPH -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="chip bg-purple-50 text-purple-700">סטפני</span>
-                <span class="text-gray-400 text-sm">(2 משימות קצרות בימים א׳–ה׳)</span>
-              </div>
-            </div>
-            <ul id="list-steph" class="space-y-2"></ul>
-          </div>
-
-          <!-- KIDS -->
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div class="glass p-3 rounded-xl">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">🧒</span>
-                  <span class="font-semibold">מַפַל – 10</span>
-                  <span class="chip bg-emerald-50 text-emerald-700">2 יומיות</span>
-                </div>
-                <div class="text-sm text-emerald-700 font-bold">⭐ <span id="pts-mafal">0</span></div>
-              </div>
-              <ul id="list-mafal" class="space-y-2"></ul>
-            </div>
-
-            <div class="glass p-3 rounded-xl">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">🧒</span>
-                  <span class="font-semibold">מעיין – 8</span>
-                  <span class="chip bg-emerald-50 text-emerald-700">2 יומיות</span>
-                </div>
-                <div class="text-sm text-emerald-700 font-bold">⭐ <span id="pts-maayan">0</span></div>
-              </div>
-              <ul id="list-maayan" class="space-y-2"></ul>
-            </div>
-          </div>
-
-          <!-- WEEKEND -->
-          <div id="weekend-card" class="hidden">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="chip bg-red-50 text-red-700">שישי–שבת</span>
-              <span class="text-gray-400 text-sm">משימות מורכבות לסטפני + 2 קלות לבנות</span>
-            </div>
-            <ul id="list-weekend" class="space-y-2"></ul>
-          </div>
+        <div class="glass card p-5">
+          <div class="text-gray-600">דחיתי</div>
+          <button class="text-4xl font-extrabold text-blue-500 mono hover:underline" data-open-list="deferred" id="kpi-deferred">0</button>
         </div>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-          <button id="btn-clear-day" class="btn bg-rose-600 text-white">🗑 אפס יום</button>
-          <button id="btn-enable-notify" class="btn btn-solid btn-pill">הפעל תזכורת יומית</button>
+        <div class="glass card p-5">
+          <div class="text-gray-600">דילגתי</div>
+          <button class="text-4xl font-extrabold text-orange-500 mono hover:underline" data-open-list="skipped" id="kpi-skipped">0</button>
+        </div>
+        <div class="glass card p-5">
+          <div class="text-gray-600">הושלמו (חודש)</div>
+          <button class="text-4xl font-extrabold text-emerald-600 mono hover:underline" data-open-list="done" id="kpi-done">0</button>
         </div>
       </div>
 
-      <!-- DONE TODAY -->
-      <div class="glass card p-4">
-        <h3 class="font-bold mb-2">מה הושלם היום</h3>
-        <div id="done-today" class="text-gray-500">עדיין לא הושלמו משימות.</div>
+      <div class="glass card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">התקדמות לפי אזור (חודשי) 🏠</h3>
+          <span id="areas-month-title" class="text-sm text-gray-500"></span>
+        </div>
+        <div id="areas-progress" class="space-y-3"></div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="glass card p-5">
+          <h3 class="text-xl font-bold mb-3">נקודות ⭐ (בנות)</h3>
+          <div class="flex items-center justify-between">
+            <div>מפל (10): <span id="stars-mafal" class="font-extrabold text-purple-700">0</span></div>
+            <div>מעיין (8): <span id="stars-maayan" class="font-extrabold text-purple-700">0</span></div>
+            <button id="btn-rewards" class="btn btn-brand">🎁 חנות פרסים</button>
+          </div>
+        </div>
+        <div class="glass card p-5">
+          <h3 class="text-xl font-bold mb-3">היסטוריית חודש</h3>
+          <button id="btn-history" class="btn btn-ghost">📅 פתחי היסטוריה</button>
+        </div>
       </div>
     </section>
 
-    <!-- DASH VIEW -->
-    <section id="view-dash" class="hidden space-y-6">
-      <div class="glass card p-4">
-        <h2 class="font-bold text-lg mb-3">סיכום חודשי</h2>
-        <div class="grid-cards">
-          <div class="glass p-4 text-center">
-            דחיתי
-            <div class="text-3xl font-extrabold text-orange-500" id="stat-defer">0</div>
+    <!-- HOME TODAY -->
+    <section id="view-home" class="hidden space-y-6">
+      <div class="glass card p-5 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-extrabold">משימות היום</h3>
+          <div class="flex gap-2">
+            <button id="btn-new-day" class="btn btn-ghost">🔄 טען משימות חדשות</button>
+            <button id="btn-clear-day" class="btn bg-rose-600 text-white">🗑️ אפס יום</button>
           </div>
-          <div class="glass p-4 text-center">
-            טרם טופלו
-            <div class="text-3xl font-extrabold text-gray-700" id="stat-open">0</div>
-          </div>
-          <div class="glass p-4 text-center">
-            הושלמו
-            <div class="text-3xl font-extrabold text-emerald-600" id="stat-done">0</div>
-          </div>
-          <div class="glass p-4 text-center">
-            דילגתי
-            <div class="text-3xl font-extrabold text-sky-600" id="stat-skip">0</div>
-          </div>
+        </div>
+        <div id="today-lists" class="grid md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <div class="glass card p-5">
+        <div class="flex flex-wrap gap-3">
+          <button id="btn-notify-test" class="btn btn-brand">🔔 בדיקת תזכורת</button>
+          <span id="notify-status" class="chip bg-purple-100 text-purple-700">התראות: כבוי</span>
         </div>
       </div>
 
-      <div class="glass card p-4">
-        <h2 class="font-bold text-lg mb-4 flex items-center gap-2">התקדמות לפי אזור (חודשי) <span class="text-xl">🏠</span></h2>
-        <div id="areas-progress" class="space-y-4"></div>
+      <div class="glass card p-5">
+        <h3 class="text-xl font-bold mb-3">מה הושלם היום</h3>
+        <div id="completed-today" class="text-gray-500">עדיין לא הושלמו משימות.</div>
       </div>
+    </section>
 
-      <div class="glass card p-4">
-        <h2 class="font-bold text-lg mb-3">ניקוד הבנות</h2>
-        <div class="flex gap-4">
-          <div class="glass p-4 rounded-xl flex-1">
-            <div class="text-sm text-gray-500">מפל</div>
-            <div class="text-3xl font-extrabold text-emerald-600">⭐ <span id="pts-mafal-lg">0</span></div>
-          </div>
-          <div class="glass p-4 rounded-xl flex-1">
-            <div class="text-sm text-gray-500">מעיין</div>
-            <div class="text-3xl font-extrabold text-emerald-600">⭐ <span id="pts-maayan-lg">0</span></div>
-          </div>
+    <!-- PASTE PLAN -->
+    <section id="view-paste" class="hidden space-y-4">
+      <div class="glass card p-5 space-y-3">
+        <h3 class="text-xl font-extrabold">תכנית ממוקדת לאזור 📸➡️✅</h3>
+        <p class="text-gray-600">
+          הדביקי כאן צעדים לפי התמונה/האזור. כל שורה = משימה. אפשר לציין
+          <span class="chip bg-purple-100 text-purple-700">[סטפני]</span>,
+          <span class="chip bg-purple-100 text-purple-700">[מפל]</span>,
+          <span class="chip bg-purple-100 text-purple-700">[מעיין]</span>,
+          <span class="chip bg-blue-100 text-blue-700">[אמצ"ש]</span>,
+          <span class="chip bg-amber-100 text-amber-700">[שישי]</span>,
+          <span class="chip bg-amber-100 text-amber-700">[שבת]</span>,
+          ו<span class="chip bg-emerald-100 text-emerald-700">[אזור: סלון]</span> לדוגמה.
+        </p>
+        <textarea id="paste-input" class="w-full h-48 p-3 border rounded-xl" placeholder="דוגמה:
+[אזור: סלון] פינוי שולחן וספה [מפל] [אמצ"ש]
+אבק מדפים קטנים [מעיין] [אמצ"ש]
+סדר צעצועים 3 סלסלות [מפל] [אמצ"ש]
+ניקוי מסילות חלון [סטפני] [שישי]
+..."></textarea>
+        <div class="flex gap-2">
+          <button id="btn-paste-parse" class="btn btn-brand">✅ צור/עדכן צ׳ק-ליסט</button>
+          <button id="btn-paste-clear" class="btn btn-ghost">🧽 נקה</button>
+          <button id="btn-paste-show" class="btn btn-ghost">👀 הצג הכל</button>
         </div>
+        <div id="paste-result" class="text-sm text-gray-500"></div>
       </div>
     </section>
   </main>
+
+  <!-- LIST MODAL -->
+  <dialog id="list-modal" class="backdrop:bg-black/40 p-0 rounded-2xl w-[95%] max-w-2xl">
+    <div class="glass p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="list-title" class="text-xl font-extrabold">רשימה</h3>
+        <button onclick="document.getElementById('list-modal').close()" class="btn btn-ghost">✖️ סגור</button>
+      </div>
+      <div id="list-content" class="space-y-3"></div>
+    </div>
+  </dialog>
 
   <!-- TOAST -->
   <div id="toast" class="toast"></div>
 
   <script>
-    // ------------- UTIL -------------
-    const qs = s => document.querySelector(s);
-    const qsa = s => [...document.querySelectorAll(s)];
-    const toast = (msg) => {
-      const t = qs('#toast'); t.textContent = msg; t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'), 1700);
-    }
-    const todayKey = () => new Date().toISOString().slice(0,10);
-    const monthKey = () => new Date().toISOString().slice(0,7);
-    const isWeekend = (() => {
-      const d=new Date().getDay(); // 0=Sun ... 6=Sat
-      return d===5 || d===6; // Fri/Sat
-    })();
-    const save = () => localStorage.setItem('orgState', JSON.stringify(STATE));
-    const load = () => JSON.parse(localStorage.getItem('orgState')||'{}');
-
-    // ------------- DATA (pools) -------------
-    // areas & monthly goals (approx how many tasks per month to reach 100%)
-    const AREAS = {
-      "סלון": 20, "מטבח": 28, "אי": 12, "מרפסת שירות": 10, "חדר משחקים": 18,
-      "שירותים/אמבטיה משחקים": 12, "שירותים/אמבטיה בנות": 12, "חדר שינה ילדים": 16,
-      "חדר ארונות": 16, "חדר שינה הורים": 16, "שירותים/אמבטיה הורים": 12,
-      "חצר קדמית": 10, "חצר אחורית": 10
-    };
-
-    // Short kids tasks (rotate)
-    const KIDS = [
-      {title:"הרמה מהספה – צעצועים/בגדים", area:"סלון"},
-      {title:"הרמת דברים מהשולחן בסלון", area:"סלון"},
-      {title:"ניגוב שולחן סלון/אי", area:"סלון"},
-      {title:"ניגוב האי במטבח", area:"אי"},
-      {title:"איסוף נעליים לפינת נעליים", area:"כניסה"},
-      {title:"טאטוא סלון (5 דקות)", area:"סלון"},
-      {title:"איסוף צעצועים מהסלון לקופסה", area:"סלון"},
-      {title:"החזרת ספרים למדף", area:"סלון"},
-      {title:"להכין תיק לבוקר למחר (במקום)", area:"חדר שינה ילדים"},
-      {title:"סידור שולחן חדר משחקים", area:"חדר משחקים"},
-      {title:"ניגוב הכיור באמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
-      {title:"החזרת צעצועים לחדר משחקים", area:"חדר משחקים"},
-      {title:"איסוף כביסה לפח כביסה", area:"חדר שינה ילדים"},
-      {title:"פינוי פח קטן בחדר משחקים", area:"חדר משחקים"}
+    /*************** CONSTANTS & STATE ***************/
+    const AREAS = [
+      "סלון","מטבח","אי","מרפסת שירות","חדר משחקים","שירותים/אמבטיה משחקים",
+      "חדר ילדים","חדר ארונות","חדר שינה הורים","שירותים/אמבטיה הורים",
+      "חצר קדמית","חצר אחורית"
     ];
+    const OWNERS = {stef:"סטפני", mafal:"מפל", maayan:"מעיין"};
+    const STORAGE_KEY = "orgorder.v3.tasks";
+    const STARS_KEY = "orgorder.v3.stars";
+    const MONTH_KEY = "orgorder.v3.month";
+    const TODAY_KEY = "orgorder.v3.today";
+    const NOTIFY_KEY = "orgorder.v3.notify";
+    let tasks = [];
+    let stars = {mafal:0, maayan:0};
+    const todayISO = new Date().toISOString().slice(0,10);
+    const monthKey = new Date().toISOString().slice(0,7); // YYYY-MM
 
-    // Stephanie short tasks (10–15m, Sun–Thu)
-    const STEPH_SHORT = [
-      {title:"פינוי וניקוי שולחן סלון", area:"סלון"},
-      {title:"ניגוב משטחי מטבח", area:"מטבח"},
-      {title:"סידור וניקוי האי", area:"אי"},
-      {title:"מיון ערימת ניירת קטנה", area:"סלון"},
-      {title:"סידור כניסה – נעליים/תיקים", area:"כניסה"},
-      {title:"סידור מהיר חדר משחקים (15׳)", area:"חדר משחקים"},
-      {title:"ניקוי מראות + שלט רחוק", area:"סלון"},
-      {title:"ניקוי ידיות דלתות/מתגים", area:"סלון"},
-      {title:"ניגוב משטח אמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
-      {title:"קיפול כביסה + החזרה לארון", area:"חדר ארונות"},
-      {title:"שאיבה קלה סביב הספה", area:"סלון"},
-      {title:"ניקוי מסך טלוויזיה בעדינות", area:"סלון"},
-      {title:"סידור מגירת תבלינים קטנה", area:"מטבח"},
-      {title:"סידור מגירת גרביים (10׳)", area:"חדר ארונות"}
-    ];
-
-    // Weekend complex for Stephanie
-    const WEEKEND_COMPLEX = [
-      {title:"ניקוי חלונות ומסילות – סלון", area:"סלון"},
-      {title:"ניקוי חלונות ומסילות – מטבח", area:"מטבח"},
-      {title:"ניקוי חלונות ומסילות – חדר משחקים", area:"חדר משחקים"},
-      {title:"ניקוי חלונות ומסילות – יציאה לחצר", area:"חצר אחורית"},
-      {title:"ניקוי חלונות ומסילות – אמבטיית משחקים", area:"שירותים/אמבטיה משחקים"},
-      {title:"ניקוי חלונות ומסילות – חדר ילדים", area:"חדר שינה ילדים"},
-      {title:"ניקוי חלונות ומסילות – חדר שינה הורים", area:"חדר שינה הורים"},
-      {title:"ניקוי חלונות ומסילות – אמבטיית הורים", area:"שירותים/אמבטיה הורים"},
-      {title:"ניקוי ספות יסודי (אבק/שאיבה/כתמים)", area:"סלון"},
-      {title:"סידור ארון אחד (חדר ארונות)", area:"חדר ארונות"},
-      {title:"סידור ארון מטבח אחד", area:"מטבח"},
-      {title:"סידור חדר משחקים עומק – קופסה/מדף", area:"חדר משחקים"},
-      {title:"מיון צעצועים למסירה/זריקה", area:"חדר משחקים"},
-      {title:"טיפול חצר קדמית – איסוף/סידור", area:"חצר קדמית"},
-      {title:"טיפול חצר אחורית – איסוף/סידור", area:"חצר אחורית"},
-      {title:"החלפת מצעים – חדר ילדים", area:"חדר שינה ילדים"},
-      {title:"החלפת מצעים – חדר שינה הורים", area:"חדר שינה הורים"}
-    ];
-
-    // + Extra housekeeping rotation to reach month depth (bedding etc.)
-    const MONTHLY_ROTATION = [
-      {title:"החלפת מצעים – בנות", area:"חדר שינה ילדים"},
-      {title:"החלפת מצעים – הורים", area:"חדר שינה הורים"},
-      {title:"ניקוי מיקרוגל/תנור קצר", area:"מטבח"},
-      {title:"ניקוי מקרר מדף אחד", area:"מטבח"},
-      {title:"ניקוי אבק מדפי סלון", area:"סלון"},
-      {title:"סידור תיבת תרופות", area:"מטבח"},
-      {title:"ניקוי מסילות דלת היציאה", area:"חצר אחורית"},
-      {title:"סידור מגירת כלים", area:"מטבח"},
-      {title:"ניקוי פחים – שטיפה", area:"מטבח"},
-      {title:"ניקוי כיור אמבטיה הורים", area:"שירותים/אמבטיה הורים"},
-      {title:"ניקוי כיור אמבטיה משחקים", area:"שירותים/אמבטיה משחקים"},
-      {title:"ניקוי חלונות קטנים מסביב לבית", area:"סלון"},
-      {title:"ניקוי מתגים/ידיות בכל הבית", area:"סלון"}
-    ];
-
-    // ------------- STATE -------------
-    const DEFAULT = {
-      month: monthKey(),
-      points: {mafal:0, maayan:0},
-      history: {}, // dateKey -> [{title,who,area,action,ts}]
-      monthDone: 0, monthSkip:0, monthDefer:0,
-      todays: {date: todayKey(), open:[], done:[]},
-      deferred: [], // {title, who, area, date}
-      notify: {enabled:false}
-    };
-    let STATE = Object.assign({}, DEFAULT, load());
-
-    // reset if month changed
-    if(STATE.month !== monthKey()){
-      STATE = Object.assign({}, DEFAULT, {points: STATE.points}); // נשמור נקודות
+    /*************** UTIL ***************/
+    const $ = sel => document.querySelector(sel);
+    function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2000); }
+    function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+    function thisMonth(t){ return (t.due||"").startsWith(monthKey); }
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+    function pick(arr,n=1){ const a=[...arr]; const out=[]; while(a.length&&out.length<n){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); } return out; }
+    function nextWeekdayDate(d=new Date()){
+      const dt=new Date(d); dt.setDate(dt.getDate()+1);
+      return dt.toISOString().slice(0,10);
     }
-    // reset if day changed
-    if(STATE.todays.date !== todayKey()){
-      STATE.todays = {date: todayKey(), open:[], done:[]};
+    function nextFriday(d=new Date()){
+      const dt=new Date(d); const day=dt.getDay(); // 5=Fri(ישראל לעתים שונה, נשתמש ב-5)
+      const diff=(5-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
+    }
+    function nextSaturday(d=new Date()){
+      const dt=new Date(d); const day=dt.getDay(); // 6=Sat
+      const diff=(6-day+7)%7||7; dt.setDate(dt.getDate()+diff); return dt.toISOString().slice(0,10);
     }
 
-    // ------------- GENERATORS -------------
-    // small deterministic RNG per day (so ריענון לא יחליף כשלא לוחצים)
-    function daySeed() {
-      const s = todayKey().replaceAll('-',''); let x=0;
-      for (let i=0;i<s.length;i++) x = (x*31 + s.charCodeAt(i)) % 9973;
-      return () => (x = (x*1103515245+12345) % 2**31) / 2**31;
+    /*************** LOAD/SAVE ***************/
+    function load(){
+      try{
+        tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+        stars = JSON.parse(localStorage.getItem(STARS_KEY)||'{"mafal":0,"maayan":0}');
+      }catch{ tasks=[]; stars={mafal:0,maayan:0}; }
     }
-    function pickN(arr, n, rnd=Math.random){
-      const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]];}
-      return a.slice(0,Math.min(n,a.length));
+    function save(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      localStorage.setItem(STARS_KEY, JSON.stringify(stars));
     }
 
-    function buildToday(force=false){
-      const rnd = daySeed();
-      if(STATE.todays.open.length && !force) return;
+    /*************** YOUTUBE LINKS ***************/
+    function ytLink(area,title){
+      const map = [
+        [/חלונ|מסיל/,"https://www.youtube.com/watch?v=U2A4c9uQHKg"],
+        [/ספה|ריפוד|ספות/,"https://www.youtube.com/watch?v=n1o8Yw3yV_8"],
+        [/אבק|מדף|מדפים/,"https://www.youtube.com/watch?v=DGm2S3a1c9c"],
+        [/ארון|מגיר/,"https://www.youtube.com/watch?v=3FexsN0eQzA"],
+        [/כיור|אמבט|מקלחת|שירותים/,"https://www.youtube.com/watch?v=6C1E1c2mG10"],
+        [/שולחן|אי/,"https://www.youtube.com/watch?v=2HqUuWv7gLY"],
+        [/צעצוע|חדר משחקים/,"https://www.youtube.com/watch?v=3rZzT4W3xYw"]
+      ];
+      for(const [re,url] of map){ if(re.test(title)||re.test(area)) return url; }
+      const q = encodeURIComponent(`טיפים לארגון ${area} ${title}`);
+      return `https://www.youtube.com/results?search_query=${q}`;
+    }
 
-      const isWE = isWeekend;
-      const open=[];
-
-      // Stephanie – two short Sun–Thu
-      if(!isWE){
-        pickN(STEPH_SHORT,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"steph"}));
-      } else {
-        // complex + 2 kids still appear below
-        pickN(WEEKEND_COMPLEX,3,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"steph-weekend"}));
+    /*************** LIBRARY: 100+ micro-tasks per area ***************/
+    function buildAreaTasks(area){
+      const out=[];
+      // גנרטורים לפי אזור
+      if(area==="סלון"){
+        for(let i=1;i<=20;i++) out.push(`אבק מדף/נישה מספר ${i}`);
+        for(let i=1;i<=12;i++) out.push(`סידור סלסלת צעצועים ${i}`);
+        for(let i=1;i<=12;i++) out.push(`מיון מגזינים/ניירות – חבילה ${i}`);
+        for(let i=1;i<=6;i++)  out.push(`ניקוי מסילות חלון סלון ${i}`);
+        out.push("ניקוי ספות – שאיבה יסודית");
+        out.push("ניקוי ספות – הסרת כתמים נקודתיים");
+        out.push("ניגוב שלט/מסכים");
+        out.push("פינוי שולחן סלון וניגוב");
+      } else if(area==="מטבח"||area==="אי"){
+        for(let i=1;i<=15;i++) out.push(`סידור מגירת מטבח ${i}`);
+        for(let i=1;i<=12;i++) out.push(`ניגוב דלתות ארון מטבח – מקטע ${i}`);
+        for(let i=1;i<=6;i++)  out.push(`ניקוי מסילות חלון מטבח ${i}`);
+        out.push("ניקוי כיור וקרמיקה");
+        out.push("ניקוי תנור – דלת/מסילות");
+        out.push("ניקוי מיקרוגל – פנים וחוץ");
+        out.push("פינוי וניגוב אי/שיש");
+      } else if(area==="מרפסת שירות"){
+        for(let i=1;i<=10;i++) out.push(`מיון חומרי ניקוי – פריט ${i}`);
+        for(let i=1;i<=10;i++) out.push(`סידור מדף אחסון ${i}`);
+        out.push("טאטוא מרפסת שירות");
+        out.push("ניגוב חלון/מסילות – מרפסת שירות");
+      } else if(area==="חדר משחקים"){
+        for(let i=1;i<=24;i++) out.push(`מיון קופסת צעצועים ${i}`);
+        for(let i=1;i<=12;i++) out.push(`אבק מדף חדר משחקים ${i}`);
+        out.push("פינוי שולחן יצירה וניגוב");
+        out.push("שאיבה פינות + מתחת לרהיטים");
+        for(let i=1;i<=4;i++) out.push(`ניקוי מסילות חלון חדר משחקים ${i}`);
+      } else if(area==="שירותים/אמבטיה משחקים"){
+        out.push("ניקוי מקלחת – אריחים/זכוכית");
+        out.push("ניקוי הכיור והברז");
+        out.push("חיטוי אסלה – מושב/בסיס");
+        out.push("ניגוב מראה");
+        out.push("שטיפת רצפה");
+      } else if(area==="חדר ילדים"){
+        for(let i=1;i<=12;i++) out.push(`מיון ארגז בגדים/צעצועים ${i}`);
+        for(let i=1;i<=12;i++) out.push(`אבק מדף/מדלפים ${i}`);
+        out.push("סידור שולחן לימודים");
+        out.push("החלפת מצעים – חדר ילדים");
+        for(let i=1;i<=4;i++) out.push(`ניקוי מסילות חלון חדר ילדים ${i}`);
+      } else if(area==="חדר ארונות"){
+        for(let i=1;i<=24;i++) out.push(`קיפול/מיון מדף בגדים ${i}`);
+        for(let i=1;i<=8;i++)  out.push(`מיון מגירת אקססוריז ${i}`);
+        out.push("שאיבה + ניגוב מדפי אבק");
+      } else if(area==="חדר שינה הורים"){
+        out.push("החלפת מצעים – הורים");
+        for(let i=1;i<=8;i++) out.push(`אבק שידות/מדף ${i}`);
+        for(let i=1;i<=4;i++) out.push(`ניקוי מסילות חלון חדר הורים ${i}`);
+        out.push("סידור שידה + כבלים");
+      } else if(area==="שירותים/אמבטיה הורים"){
+        out.push("ניקוי מקלחת – אריחים/זכוכית");
+        out.push("ניקוי כיור וברז");
+        out.push("חיטוי אסלה");
+        out.push("ניגוב מראה");
+        out.push("שטיפת רצפה");
+      } else if(area==="חצר קדמית"||area==="חצר אחורית"){
+        out.push("טאטוא רצפה");
+        out.push("ניגוב מעקות/שולחן חוץ");
+        out.push("סידור צעצועי חוץ/עציצים");
       }
+      // הבטחה ל~100: משלים בסדר כללי
+      while(out.length<100) out.push(`משימת תחזוקה נקודתית ${out.length+1}`);
+      return out;
+    }
 
-      // Kids – always 2+2
-      pickN(KIDS,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"mafal"}));
-      pickN(KIDS,2,rnd).forEach(t=>open.push({...t, id:crypto.randomUUID(), who:"maayan"}));
-
-      // monthly rotation – slip one extra depth task some days
-      if(rnd()>.6){ open.push({...pickN(MONTHLY_ROTATION,1,rnd)[0], id:crypto.randomUUID(), who:"steph"}); }
-
-      STATE.todays.open = open;
+    function ensureMonthlyLibrary(){
+      const current = localStorage.getItem(MONTH_KEY);
+      if(current===monthKey) return; // כבר נוצר לחודש זה
+      // רוקן סטטוסים “זמניים” ישנים
+      tasks = tasks.filter(t => thisMonth(t));
+      // הזרקה לכל אזור
+      for(const area of AREAS){
+        const titles = buildAreaTasks(area);
+        for(const title of titles){
+          tasks.push({
+            id: uid(),
+            title,
+            area,
+            owner: "stef",
+            size: /החלפת מצעים|ניקוי מקלחת|ניקוי תנור|ספות|מסילות/.test(title) ? "big" : "small",
+            schedule: "any",
+            status: "todo",
+            created: todayISO,
+            due: `${monthKey}-${String(Math.min(28,Math.floor(Math.random()*28)+1)).padStart(2,"0")}`,
+            video: ytLink(area,title),
+            source: "library",
+            points: 0
+          });
+        }
+      }
+      localStorage.setItem(MONTH_KEY, monthKey);
       save();
     }
 
-    // ------------- RENDER -------------
-    function taskLi(t){
-      return `
-      <li class="flex items-center justify-between bg-white border rounded-xl p-3">
-        <div class="flex items-center gap-3">
-          <span class="text-xl">${t.who==="mafal"?"🧒":t.who==="maayan"?"🧒":t.who==="steph-weekend"?"🧱":"🧍‍♀️"}</span>
-          <div>
-            <div class="font-semibold text-gray-800 text-sm">${t.title}</div>
-            ${t.area?`<div class="text-xs text-purple-700">${t.area}</div>`:""}
-          </div>
-        </div>
-        <div class="flex gap-1">
-          <button class="btn px-2 py-1 text-xs rounded-lg bg-emerald-100 text-emerald-700" data-act="done" data-id="${t.id}" type="button">בוצע</button>
-          <button class="btn px-2 py-1 text-xs rounded-lg bg-sky-100 text-sky-700" data-act="skip" data-id="${t.id}" type="button">דלג</button>
-          <button class="btn px-2 py-1 text-xs rounded-lg bg-amber-100 text-amber-700" data-act="defer" data-id="${t.id}" type="button">דחה</button>
-        </div>
-      </li>`;
-    }
+    /*************** DAILY/WEEKEND ASSIGNMENTS ***************/
+    const kidsPool = [
+      {title:"הרמת חפצים מהאי", area:"אי"},
+      {title:"הרמת חפצים מהשולחן בסלון", area:"סלון"},
+      {title:"הרמת חפצים מהספה", area:"סלון"},
+      {title:"ניגוב שולחן סלון", area:"סלון"},
+      {title:"ניגוב אי/שיש (חלק עליון)", area:"אי"},
+      {title:"טאטוא סלון – 5 דקות", area:"סלון"},
+      {title:"החזרת נעליים למקום", area:"סלון"},
+      {title:"סידור סלסלת צעצועים אחת", area:"חדר משחקים"},
+      {title:"סידור שולחן לימודים", area:"חדר ילדים"}
+    ];
+    const weekendBig = [
+      {title:"ניקוי חלונות ומסילות – סלון", area:"סלון"},
+      {title:"ניקוי חלונות ומסילות – מטבח", area:"מטבח"},
+      {title:"ניקוי חלונות ומסילות – חדר משחקים", area:"חדר משחקים"},
+      {title:"ניקוי חלונות ומסילות – חדר ילדים", area:"חדר ילדים"},
+      {title:"ניקוי חלונות ומסילות – הורים", area:"חדר שינה הורים"},
+      {title:"ניקוי ספות – שאיבה יסודית", area:"סלון"},
+      {title:"ניקוי מקלחת יסודי – הורים", area:"שירותים/אמבטיה הורים"},
+      {title:"ניקוי מקלחת יסודי – משחקים", area:"שירותים/אמבטיה משחקים"},
+      {title:"מיון 10 מדפי חדר ארונות (חלק)", area:"חדר ארונות"}
+    ];
 
-    function renderLists(){
-      const open=STATE.todays.open;
-      const steph   = open.filter(t=>t.who==="steph");
-      const mafal   = open.filter(t=>t.who==="mafal");
-      const maayan  = open.filter(t=>t.who==="maayan");
-      const weekend = open.filter(t=>t.who==="steph-weekend");
-
-      qs("#list-steph").innerHTML  = steph.length ? steph.map(taskLi).join("") : `<div class="text-sm text-gray-500">אין כרגע. לחצי "טען משימות".</div>`;
-      qs("#list-mafal").innerHTML  = mafal.length ? mafal.map(taskLi).join("") : `<div class="text-sm text-gray-500">אין כרגע.</div>`;
-      qs("#list-maayan").innerHTML = maayan.length? maayan.map(taskLi).join(""): `<div class="text-sm text-gray-500">אין כרגע.</div>`;
-
-      const we = qs("#weekend-card");
-      if(isWeekend){ we.classList.remove("hidden"); qs("#list-weekend").innerHTML = weekend.length? weekend.map(taskLi).join(""):`<div class="text-sm text-gray-500">אין כרגע.</div>`; }
-      else{ we.classList.add("hidden"); }
-
-      // Done today
-      const doneList = STATE.todays.done;
-      qs("#done-today").innerHTML = doneList.length
-        ? doneList.map(x=>`<div class="bg-green-50 border border-green-100 rounded-lg p-2">✅ ${x.title}</div>`).join("")
-        : "עדיין לא הושלמו משימות.";
-    }
-
-    function renderDashboard(){
-      qs("#stat-done").textContent  = STATE.monthDone;
-      qs("#stat-skip").textContent  = STATE.monthSkip;
-      qs("#stat-defer").textContent = STATE.monthDefer;
-      qs("#stat-open").textContent  = STATE.todays.open.length;
-
-      qs("#pts-mafal").textContent = qs("#pts-mafal-lg").textContent = STATE.points.mafal;
-      qs("#pts-maayan").textContent= qs("#pts-maayan-lg").textContent= STATE.points.maayan;
-
-      // per-area progress
-      const progress = {};
-      // collect month history done only
-      Object.entries(STATE.history).forEach(([d,items])=>{
-        if(!d.startsWith(monthKey())) return;
-        items.forEach(it=>{ if(it.action==="done"){ progress[it.area]=(progress[it.area]||0)+1; }});
-      });
-      const wrap = qs("#areas-progress"); wrap.innerHTML="";
-      Object.entries(AREAS).forEach(([area,goal])=>{
-        const val = progress[area]||0;
-        const pct = Math.min(100, Math.round((val/goal)*100));
-        const row = document.createElement("div");
-        row.innerHTML = `
-          <div class="flex items-center justify-between mb-1">
-            <div class="font-semibold">${area}</div>
-            <div class="text-sm text-gray-500">${val}/${goal}</div>
-          </div>
-          <div class="progress"><span style="width:${pct}%"></span></div>
-        `;
-        wrap.appendChild(row);
-      });
-    }
-
-    function bindActions(){
-      ["list-steph","list-mafal","list-maayan","list-weekend"].forEach(id=>{
-        qs("#"+id).addEventListener("click", ev=>{
-          const btn = ev.target.closest("button[data-id]"); if(!btn) return;
-          const id = btn.dataset.id, act=btn.dataset.act;
-          const idx = STATE.todays.open.findIndex(x=>x.id===id); if(idx<0) return;
-          const task = STATE.todays.open[idx];
-          STATE.todays.open.splice(idx,1);
-
-          const today = todayKey();
-          STATE.history[today]=STATE.history[today]||[];
-
-          if(act==="done"){
-            STATE.todays.done.push(task);
-            STATE.monthDone++;
-            STATE.history[today].push({...task, action:"done", ts:Date.now()});
-
-            if(task.who==="mafal")  STATE.points.mafal += 1;
-            if(task.who==="maayan") STATE.points.maayan+= 1;
-            toast("כל הכבוד! ✅");
-
-          } else if(act==="skip"){
-            STATE.monthSkip++;
-            STATE.history[today].push({...task, action:"skip", ts:Date.now()});
-          } else {
-            STATE.monthDefer++;
-            STATE.deferred.push({...task, action:"defer", date:today});
-            STATE.history[today].push({...task, action:"defer", ts:Date.now()});
-          }
-
-          save(); renderLists(); renderDashboard();
-        }, {passive:true});
-      });
-
-      qs("#btn-refresh").onclick = () => { buildToday(true); save(); renderLists(); renderDashboard(); toast("ריעננתי משימות"); };
-      qs("#btn-clear-day").onclick= () => {
-        STATE.todays = {date:todayKey(), open:[], done:[]};
-        buildToday(true); save(); renderLists(); renderDashboard(); toast("אופסנו ליום חדש");
-      };
-
-      // tabs
-      const applyRoute = ()=> {
-        const dash = location.hash==="#dash";
-        qs("#view-home").classList.toggle("hidden", dash);
-        qs("#view-dash").classList.toggle("hidden", !dash);
-        qs("#tab-dash").classList.toggle("bg-purple-600", dash);
-        qs("#tab-dash").classList.toggle("text-white", dash);
-        qs("#tab-home").classList.toggle("bg-purple-600", !dash);
-        qs("#tab-home").classList.toggle("text-white", !dash);
-      };
-      window.addEventListener("hashchange", applyRoute);
-      qs("#tab-dash").onclick = ()=>{ location.hash="#dash"; applyRoute(); };
-      qs("#tab-home").onclick = ()=>{ location.hash="";      applyRoute(); };
-      applyRoute();
-
-      // notifications
-      qs("#btn-test-notify").onclick = () => showBrowserNotification(true);
-      qs("#btn-enable-notify").onclick = enableDailyNotification;
-    }
-
-    // ------------- NOTIFICATIONS -------------
-    let scheduleTimer=null;
-    function enableDailyNotification(){
-      if(!('Notification' in window)){ alert("הדפדפן לא תומך התראות."); return; }
-      if(Notification.permission==='granted'){
-        STATE.notify.enabled=true; save(); scheduleDaily(); toast("התזכורת הופעלה");
-      } else if(Notification.permission==='default'){
-        Notification.requestPermission().then(p=>{
-          if(p==='granted'){ STATE.notify.enabled=true; save(); scheduleDaily(); toast("התזכורת הופעלה"); }
-          else alert("כדי לקבל התראות צריך לאשר בדפדפן");
+    function newDay(){
+      const d = new Date(); const dow=d.getDay(); // 0=א, 5=ו, 6=ש
+      const weekday = (dow>=0 && dow<=4);
+      // בטל שיוכים קודמים של היום
+      tasks = tasks.map(t => (t.assigned===todayISO ? {...t, assigned:null} : t));
+      // שתי משימות קלות לכל ילדה (יומי)
+      const pool = kidsPool.slice();
+      const m1 = pick(pool,2); const m2 = pick(pool,2);
+      for(const m of m1){
+        tasks.push({
+          id: uid(), title:m.title, area:m.area, owner:"mafal",
+          size:"small", schedule:"weekday", status:"todo",
+          created: todayISO, due: todayISO, video: ytLink(m.area,m.title), source:"daily", points:1, assigned:todayISO
         });
-      } else {
-        alert("התראות חסומות בדפדפן. אפשר לשנות בהגדרות האתר.");
       }
-    }
-    function scheduleDaily(){
-      clearTimeout(scheduleTimer);
-      // next 21:00 today/מחר
-      const now=new Date();
-      const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0);
-      if(now>target) target.setDate(target.getDate()+1);
-      const ms=target-now;
-      scheduleTimer = setTimeout(()=>{
-        showBrowserNotification();
-        scheduleDaily(); // reschedule to tomorrow
-      }, ms);
-    }
-    function showBrowserNotification(force){
-      if(!force && !STATE.notify.enabled) return;
-      try{
-        new Notification('זמן לניקיון! 🏠', {body:'בואי לסיים 2-3 משימות קצרות עכשיו 🙂'});
-      }catch(e){ /* ignore */ }
-      toast("🔔 תזכורת נשלחה");
+      for(const m of m2){
+        tasks.push({
+          id: uid(), title:m.title, area:m.area, owner:"maayan",
+          size:"small", schedule:"weekday", status:"todo",
+          created: todayISO, due: todayISO, video: ytLink(m.area,m.title), source:"daily", points:1, assigned:todayISO
+        });
+      }
+      // שתי משימות קצרות לסטפני (א׳-ה׳)
+      if(weekday){
+        const shortables = tasks.filter(t=>t.size==="small" && t.status==="todo" && thisMonth(t));
+        for(const t of pick(shortables,2)){
+          t.owner="stef"; t.due=todayISO; t.assigned=todayISO; t.source="assigned";
+        }
+      } else {
+        // סופ״ש – משימות מורכבות לסטפני
+        const wk = pick(weekendBig,3);
+        for(const w of wk){
+          tasks.push({
+            id: uid(), title:w.title, area:w.area, owner:"stef",
+            size:"big", schedule: dow===5 ? "fri":"sat", status:"todo",
+            created: todayISO, due: todayISO, video: ytLink(w.area,w.title), source:"weekend", points:3, assigned:todayISO
+          });
+        }
+        // לכל ילדה – 2 קלות בסופ״ש
+        for(const kid of ["mafal","maayan"]){
+          for(const m of pick(kidsPool,2)){
+            tasks.push({id:uid(), title:m.title, area:m.area, owner:kid, size:"small", schedule:"sat", status:"todo",
+              created: todayISO, due: todayISO, video: ytLink(m.area,m.title), source:"weekendKids", points:1, assigned:todayISO});
+          }
+        }
+      }
+      localStorage.setItem(TODAY_KEY, todayISO);
+      save(); renderAll(); toast("נטענו משימות להיום ✅");
     }
 
-    // ------------- INIT -------------
-    buildToday(false);
-    renderLists(); renderDashboard();
-    bindActions();
-    if(STATE.notify.enabled) scheduleDaily();
+    function ensureToday(){
+      const stored = localStorage.getItem(TODAY_KEY);
+      if(stored!==todayISO){ newDay(); } else { renderAll(); }
+    }
+
+    /*************** PASTE PARSER ***************/
+    function parsePaste(text){
+      const lines = text.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+      let currentArea = "סלון";
+      let created = 0;
+      for(const line of lines){
+        const areaMatch = line.match(/\[אזור:\s*([^\]]+)\]/);
+        if(areaMatch){ currentArea = areaMatch[1].trim(); continue; }
+        let owner="stef"; if(/\[מפל\]/.test(line)) owner="mafal"; if(/\[מעיין\]/.test(line)) owner="maayan";
+        let schedule="weekday"; if(/\[שישי\]/.test(line)) schedule="fri"; else if(/\[שבת\]/.test(line)) schedule="sat";
+        const title = line.replace(/\[[^\]]+\]/g,"").trim();
+        if(!title) continue;
+        const obj={
+          id: uid(), title, area: currentArea, owner,
+          size: /ניקוי|חלונ|מסיל|תנור|ספות|מקלחת|ארונות|מגירה/.test(title) ? "big":"small",
+          schedule, status:"todo", created: todayISO,
+          due: schedule==="fri" ? nextFriday() : schedule==="sat" ? nextSaturday() : todayISO,
+          video: ytLink(currentArea,title), source:"pasted", points: owner==="stef" ? 2 : 1
+        };
+        tasks.push(obj); created++;
+      }
+      save();
+      return created;
+    }
+
+    /*************** ACTIONS ***************/
+    function setStatus(id, status){
+      const t = tasks.find(x=>x.id===id); if(!t) return;
+      const prev = t.status;
+      t.status = status;
+      if(status==="done"){
+        // נקודות לילדות
+        if(t.owner==="mafal") stars.mafal += (t.points||1);
+        if(t.owner==="maayan") stars.maayan += (t.points||1);
+      }
+      if(status==="undo"){ t.status = "todo"; }
+      save(); renderAll();
+      if(status==="done") toast("כל הכבוד! ✅");
+      if(status==="skipped") toast("דילגת על המשימה");
+      if(status==="deferred"){
+        // קובעים דחייה לשבוע הבא/ליום הבא בהתאם לסוג
+        const due = t.schedule==="fri" ? nextFriday(new Date(t.due||todayISO))
+                 : t.schedule==="sat" ? nextSaturday(new Date(t.due||todayISO))
+                 : nextWeekdayDate(new Date(t.due||todayISO));
+        t.due = due; save(); renderAll(); toast("נדחה לשלב הבא 📆");
+      }
+      if(status==="undo") toast("שוחזר ✨");
+    }
+
+    /*************** RENDER ***************/
+    function renderAreasProgress(){
+      const wrap=$("#areas-progress"); wrap.innerHTML="";
+      const monthly = tasks.filter(thisMonth);
+      const grouped = {};
+      for(const a of AREAS) grouped[a]=[];
+      for(const t of monthly) grouped[t.area]?.push(t);
+      for(const a of AREAS){
+        const arr = grouped[a]||[];
+        const total = arr.length||1;
+        const done = arr.filter(x=>x.status==="done").length;
+        const pct = Math.round(done/total*100);
+        const row=document.createElement("div");
+        row.innerHTML=`
+          <div class="flex justify-between text-sm mb-1"><div>${a}</div><div class="mono">${done}/${total} · ${pct}%</div></div>
+          <div class="w-full bg-purple-100 h-3 rounded-full overflow-hidden">
+            <div class="h-3 bg-gradient-to-r from-purple-500 to-fuchsia-500" style="width:${pct}%;"></div>
+          </div>`;
+        wrap.appendChild(row);
+      }
+      $("#areas-month-title").textContent = monthKey;
+    }
+
+    function cardForTask(t){
+      const chips = `
+        <span class="chip bg-gray-100 text-gray-700">${t.area}</span>
+        <span class="chip ${t.size==="big"?"bg-rose-100 text-rose-700":"bg-emerald-100 text-emerald-700"}">${t.size==="big"?"מורכב":"קל"}</span>
+        <span class="chip bg-blue-100 text-blue-700">${t.owner?OWNERS[t.owner]:""}</span>
+      `;
+      return `
+        <div class="glass p-4 rounded-xl space-y-2 shadow-soft">
+          <div class="flex justify-between">
+            <div class="font-bold">${t.title}</div>
+            <a class="chip bg-purple-50 text-purple-700" href="${t.video}" target="_blank" rel="noopener">🎬</a>
+          </div>
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          <div class="flex gap-2">
+            <button class="btn btn-brand" data-act="done" data-id="${t.id}">בוצע</button>
+            <button class="btn btn-ghost" data-act="skip" data-id="${t.id}">דלג</button>
+            <button class="btn btn-ghost" data-act="defer" data-id="${t.id}">דחה</button>
+            ${t.status==="done" ? `<button class="btn btn-ghost" data-act="undo" data-id="${t.id}">↩️ שחזר</button>` : ""}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderToday(){
+      const box=$("#today-lists");
+      const assigned = tasks.filter(t=>t.assigned===todayISO || t.due===todayISO);
+      const byOwner = o => assigned.filter(t=>t.owner===o && t.status!=="done" && t.status!=="skipped" && t.status!=="hidden");
+      const sections = [
+        {title:"מפל – 2 קלות", owner:"mafal"},
+        {title:"מעיין – 2 קלות", owner:"maayan"},
+        {title:"סטפני – יומי", owner:"stef"}
+      ];
+      box.innerHTML = sections.map(s=>{
+        const list = byOwner(s.owner).map(cardForTask).join("") || `<div class="text-gray-500">אין כרגע. לחצי "טען משימות חדשות".</div>`;
+        return `<div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-lg">${s.title}</h4>
+          </div>
+          ${list}
+        </div>`;
+      }).join("");
+
+      // הושלם היום
+      const done = assigned.filter(t=>t.status==="done");
+      $("#completed-today").innerHTML = done.length? done.map(t=>`<div class="text-sm">✅ ${t.title} <span class="text-gray-500">(${t.area})</span> <button class="text-purple-700 underline" data-act="undo" data-id="${t.id}">שחזר</button></div>`).join("") : "עדיין לא הושלמו משימות.";
+    }
+
+    function renderKPIs(){
+      // חודשי
+      const monthTasks = tasks.filter(thisMonth);
+      const todo = monthTasks.filter(t=>t.status==="todo").length;
+      const done = monthTasks.filter(t=>t.status==="done").length;
+      const skipped = monthTasks.filter(t=>t.status==="skipped").length;
+      const deferred = monthTasks.filter(t=>t.status==="deferred").length;
+      $("#kpi-todo").textContent=todo;
+      $("#kpi-done").textContent=done;
+      $("#kpi-skipped").textContent=skipped;
+      $("#kpi-deferred").textContent=deferred;
+      // כוכבים
+      $("#stars-mafal").textContent=stars.mafal;
+      $("#stars-maayan").textContent=stars.maayan;
+    }
+
+    function renderAll(){
+      renderKPIs();
+      renderAreasProgress();
+      renderToday();
+    }
+
+    /*************** NOTIFICATIONS ***************/
+    function updateNotifyBadge(){
+      const on = JSON.parse(localStorage.getItem(NOTIFY_KEY)||"false");
+      $("#notify-status").textContent = "התראות: "+(on?"פעיל":"כבוי");
+    }
+    async function enableNotifyNow(){
+      if(!("Notification" in window)){ toast("הדפדפן לא תומך בהתראות"); return; }
+      let perm = Notification.permission;
+      if(perm==="default"){ perm = await Notification.requestPermission(); }
+      if(perm!=="granted"){ toast("הרשאה נחסמה בדפדפן"); return; }
+      localStorage.setItem(NOTIFY_KEY,"true"); updateNotifyBadge();
+      // שליחת בדיקה מיידית
+      new Notification("בדיקת תזכורת 🛎️",{ body:"זה עובד! אם תרצי — הוסיפי לקיצור מסך הבית לקבלת חוויה טובה יותר."});
+    }
+
+    /*************** ROUTER ***************/
+    function show(tab){
+      $("#view-dashboard").classList.toggle("hidden", tab!=="dashboard");
+      $("#view-home").classList.toggle("hidden", tab!=="home");
+      $("#view-paste").classList.toggle("hidden", tab!=="paste");
+      for(const el of ["#tab-dashboard","#tab-home","#tab-paste"]) $(el).classList.remove("btn-brand");
+      (tab==="dashboard"?$("#tab-dashboard"):tab==="home"?$("#tab-home"):$("#tab-paste")).classList.add("btn-brand");
+      history.replaceState({}, "", "#"+tab);
+    }
+
+    /*************** EVENTS ***************/
+    // טAbs
+    $("#tab-dashboard").addEventListener("click",()=>show("dashboard"));
+    $("#tab-home").addEventListener("click",()=>show("home"));
+    $("#tab-paste").addEventListener("click",()=>show("paste"));
+
+    // פעולה על כרטיס
+    document.body.addEventListener("click", (e)=>{
+      const act = e.target?.dataset?.act; if(!act) return;
+      const id  = e.target.dataset.id;
+      if(act==="done") setStatus(id,"done");
+      if(act==="skip") setStatus(id,"skipped");
+      if(act==="defer") setStatus(id,"deferred");
+      if(act==="undo") setStatus(id,"undo");
+    });
+
+    // KPI open list
+    document.body.addEventListener("click",(e)=>{
+      const type = e.target?.dataset?.openList; if(!type) return;
+      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+      let arr = tasks.filter(thisMonth);
+      if(type==="todo") arr = arr.filter(t=>t.status==="todo");
+      if(type==="done") arr = arr.filter(t=>t.status==="done");
+      if(type==="skipped") arr = arr.filter(t=>t.status==="skipped");
+      if(type==="deferred") arr = arr.filter(t=>t.status==="deferred");
+      title.textContent = "רשימה: "+(type==="todo"?"טרם טופלו":type==="done"?"הושלמו":type==="skipped"?"דילוגים":"דחיות");
+      cont.innerHTML = arr.length? arr.slice(0,200).map(cardForTask).join("") : `<div class="text-gray-500">אין פריטים להצגה</div>`;
+      modal.showModal();
+    });
+
+    // New day / clear
+    $("#btn-new-day").addEventListener("click", newDay);
+    $("#btn-clear-day").addEventListener("click", ()=>{
+      tasks = tasks.filter(t=>t.assigned!==todayISO && t.due!==todayISO);
+      save(); renderAll(); toast("נוקו משימות היום");
+    });
+
+    // Notifications
+    $("#btn-notify-test").addEventListener("click", enableNotifyNow);
+
+    // Paste
+    $("#btn-paste-parse").addEventListener("click", ()=>{
+      const n = parsePaste($("#paste-input").value||"");
+      $("#paste-result").textContent = n? `נוספו/עודכנו ${n} משימות` : "לא זוהו משימות";
+      renderAll();
+    });
+    $("#btn-paste-clear").addEventListener("click", ()=>{$("#paste-input").value=""; $("#paste-result").textContent="";});
+    $("#btn-paste-show").addEventListener("click", ()=>{
+      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+      title.textContent="כל המשימות (חודש)";
+      const arr = tasks.filter(thisMonth).slice(0,300);
+      cont.innerHTML = arr.map(cardForTask).join("");
+      modal.showModal();
+    });
+
+    // Rewards / History
+    $("#btn-rewards").addEventListener("click", ()=>{
+      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+      title.textContent="🎁 חנות פרסים";
+      cont.innerHTML=`
+        <div class="space-y-3">
+          <div>10⭐ = גלידה / 20⭐ = סרט משפחה / 30⭐ = יציאה לפארק מיוחד</div>
+          <div class="flex gap-3">
+            <button class="btn btn-brand" id="buy-ice">🍦 גלידה (10⭐)</button>
+            <button class="btn btn-brand" id="buy-movie">🎬 סרט (20⭐)</button>
+            <button class="btn btn-brand" id="buy-park">🎡 פארק (30⭐)</button>
+          </div>
+        </div>`;
+      modal.showModal();
+      cont.querySelector("#buy-ice").onclick=()=>{ if(stars.mafal>=10){stars.mafal-=10; save(); renderAll(); toast("נרכש פרס למפל 🍦")} else toast("לא מספיק ⭐"); };
+      cont.querySelector("#buy-movie").onclick=()=>{ if(stars.maayan>=20){stars.maayan-=20; save(); renderAll(); toast("נרכש פרס למעיין 🎬")} else toast("לא מספיק ⭐"); };
+      cont.querySelector("#buy-park").onclick=()=>{ if(stars.maayan>=30){stars.maayan-=30; save(); renderAll(); toast("פרס פארק 🎡")} else toast("לא מספיק ⭐"); };
+    });
+
+    $("#btn-history").addEventListener("click", ()=>{
+      const modal=$("#list-modal"), cont=$("#list-content"), title=$("#list-title");
+      title.textContent="היסטוריית חודש";
+      const arr = tasks.filter(thisMonth && (t=>t.status==="done"));
+      // נפרוס לפי תאריך
+      const byDate={}; for(const t of tasks.filter(thisMonth)){ const d=t.due||t.created; (byDate[d]=byDate[d]||[]).push(t); }
+      cont.innerHTML = Object.entries(byDate).sort(([a],[b])=>a.localeCompare(b)).map(([d,items])=>{
+        const done = items.filter(x=>x.status==="done").length;
+        return `<div class="p-3 rounded-xl bg-white/70">
+          <div class="font-bold mb-2">${d} · הושלמו ${done}/${items.length}</div>
+          ${items.slice(0,40).map(x=>`<div class="text-sm ${x.status==='done'?'text-emerald-700':'text-gray-600'}">• ${x.title} <span class="text-gray-400">(${x.area})</span></div>`).join("")}
+        </div>`;
+      }).join("") || "<div class='text-gray-500'>אין נתונים עדיין</div>";
+      modal.showModal();
+    });
+
+    /*************** INIT ***************/
+    load();
+    ensureMonthlyLibrary();
+    updateNotifyBadge();
+    show(location.hash.replace("#","") || "dashboard");
+    ensureToday();
   </script>
 </body>
 </html>
